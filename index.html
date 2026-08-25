@@ -529,7 +529,6 @@ function renderAllSchedule(cfg) {
       <td><span class="round-tag ${s.person.cls}">${esc(s.person.tag)}</span></td>
     </tr>`).join("");
   document.getElementById("tab-all").innerHTML = `<div class="card">
-    <h2>50 buổi học sắp tới (các buổi đã qua được ẩn)</h2>
     <div class="table-scroll"><table>
       <thead><tr><th>Ngày</th><th>Bạn trực</th><th>Đợt / Vòng</th></tr></thead>
       <tbody>${rows}</tbody>
