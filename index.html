@@ -10,7 +10,11 @@
 <script>
 // ===== CONFIG START =====
 const CONFIG = {
-  password: "chipheo2001",
+  // Mật khẩu KHÔNG lưu dạng chữ — chỉ lưu mã băm SHA-256 của chuỗi "llcdht:<mật khẩu>".
+  // Muốn đổi mật khẩu: mở Console trình duyệt (F12) trên trang này rồi chạy:
+  //   hashPassword("mật_khẩu_mới").then(console.log)
+  // và dán kết quả vào đây.
+  passwordHash: "30951c9e90f17979ef0d332dd209650c6d07b7136c4c67ac18f44bf05ea2fa11",
   startDate: "2026-08-25",
   // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
   schoolDays: [1, 2, 3, 5],
@@ -548,9 +552,24 @@ function renderAllSchedule(cfg) {
 function isAdmin() {
   try { return sessionStorage.getItem(AUTH_KEY) === "1"; } catch (e) { return false; }
 }
-function tryLogin() {
+// Băm SHA-256 có muối — dùng cả khi đăng nhập lẫn khi tạo mật khẩu mới (gọi từ Console)
+async function hashPassword(pw) {
+  const data = new TextEncoder().encode("llcdht:" + pw);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function tryLogin() {
   const v = document.getElementById("pwInput").value;
-  if (v === CONFIG.password) {
+  let hash;
+  try { hash = await hashPassword(v); }
+  catch (e) {
+    // crypto.subtle chỉ chạy trên https/localhost/file — báo rõ thay vì im lặng
+    const err = document.getElementById("pwErr");
+    err.textContent = "Trình duyệt không hỗ trợ mã hóa ở trang này (cần mở qua https).";
+    err.style.display = "block";
+    return;
+  }
+  if (hash === CONFIG.passwordHash) {
     try { sessionStorage.setItem(AUTH_KEY, "1"); } catch (e) { /* vẫn cho vào trong phiên này */ }
     window._adminFallback = true;
     renderAll();
@@ -742,7 +761,11 @@ function generateConfigBlock() {
   ).join(",\n");
   return `// ===== CONFIG START =====
 const CONFIG = {
-  password: ${JSON.stringify(CONFIG.password)},
+  // Mật khẩu KHÔNG lưu dạng chữ — chỉ lưu mã băm SHA-256 của chuỗi "llcdht:<mật khẩu>".
+  // Muốn đổi mật khẩu: mở Console trình duyệt (F12) trên trang này rồi chạy:
+  //   hashPassword("mật_khẩu_mới").then(console.log)
+  // và dán kết quả vào đây.
+  passwordHash: ${JSON.stringify(CONFIG.passwordHash)},
   startDate: ${JSON.stringify(cfg.startDate)},
   // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
   schoolDays: [${cfg.schoolDays.join(", ")}],
