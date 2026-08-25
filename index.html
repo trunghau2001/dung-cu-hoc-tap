@@ -97,8 +97,11 @@ const CONFIG = {
     line-height: 1.5;
     transition: background .3s, color .3s;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+  .wrap { max-width: 640px; width: 100%; margin: 0 auto; padding: 16px 16px 32px; flex: 1; }
 
   header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0 16px; }
   header h1 { font-size: 1.15rem; font-weight: 700; }
@@ -236,7 +239,11 @@ const CONFIG = {
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  footer { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 24px; }
+  footer {
+    text-align: center; font-size: .75rem; color: var(--muted);
+    padding: 14px 16px; border-top: 1px solid var(--border);
+    background: var(--card); margin-top: auto;
+  }
 </style>
 </head>
 <body>
@@ -261,9 +268,9 @@ const CONFIG = {
   <div id="tab-week" class="tab-panel"></div>
   <div id="tab-all" class="tab-panel"></div>
   <div id="tab-admin" class="tab-panel"></div>
-
-  <footer>© 2026 Lớp 1TCT-26-1 · Lịch lấy dụng cụ học tập · Made by HauDT</footer>
 </div>
+
+<footer>© 2026 Lớp 1TCT-26-1 · Lịch lấy dụng cụ học tập · Made by HauDT</footer>
 
 <script>
 "use strict";
@@ -392,7 +399,7 @@ function renderAll() {
   const cfg = activeConfig();
   document.getElementById("draftBanner").classList.toggle("show", hasDraft());
   document.getElementById("subTitle").textContent =
-    "Áp dụng từ " + fmtVN(parseDate(cfg.startDate)) + " · " + cfg.students.length + " bạn";
+    "Áp dụng từ " + fmtVN(parseDate(cfg.startDate));
   if (currentTab === "today") renderToday(cfg);
   else if (currentTab === "week") renderWeek(cfg);
   else if (currentTab === "all") renderAllSchedule(cfg);
