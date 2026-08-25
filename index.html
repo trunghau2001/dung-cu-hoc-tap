@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lịch lấy dụng cụ học tập</title>
+<script>
+// ===== CONFIG START =====
+const CONFIG = {
+  password: "chipheo2001",
+  startDate: "2026-08-25",
+  // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
+  schoolDays: [1, 2, 3, 5],
+  // Danh sách ngày nghỉ, định dạng "YYYY-MM-DD"
+  disabledDates: [],
+  // done = true nghĩa là ĐÃ lấy dụng cụ đợt 1
+  students: [
+    { name: "Trần Mai Anh", done: true },
+    { name: "Bùi Thúy Anh", done: true },
+    { name: "Đỗ Minh Anh", done: true },
+    { name: "Lê Nguyễn Nhật Anh", done: true },
+    { name: "Ngô Thế Việt Anh", done: false },
+    { name: "Đặng Ngọc Châm", done: true },
+    { name: "Nguyễn Thùy Dương", done: true },
+    { name: "Đỗ Hà Giang", done: true },
+    { name: "Vũ Thanh Hà", done: true },
+    { name: "Đỗ Bảo Hà", done: true },
+    { name: "Đặng Trung Hậu", done: true },
+    { name: "Đỗ Nguyên Hoàng", done: true },
+    { name: "Lương Vân Hồng", done: false },
+    { name: "Trần Quang Huy", done: true },
+    { name: "Bùi Khánh Linh", done: true },
+    { name: "Nguyễn Hoàng Yến Linh", done: false },
+    { name: "Nguyễn Thị Kim Loan", done: true },
+    { name: "Nguyễn Khắc Mạnh", done: true },
+    { name: "Nguyễn Nhật Minh", done: true },
+    { name: "Nguyễn Ngọc Trà My", done: true },
+    { name: "Đào Thị Ngà", done: true },
+    { name: "Nguyễn Quý Ngọc", done: true },
+    { name: "Nguyễn Thị Ánh Nguyệt", done: true },
+    { name: "Nguyễn Yến Nhi", done: true },
+    { name: "Nguyễn Thị Nhung", done: false },
+    { name: "Nguyễn Thị Hồng Nhung", done: true },
+    { name: "Khương Thị Nhung", done: false },
+    { name: "Nguyễn Hà Phương", done: true },
+    { name: "Nguyễn Thị Thanh Tâm", done: true },
+    { name: "Nguyễn Thị Thanh Thảo", done: true },
+    { name: "Phùng Thị Thuỷ", done: true },
+    { name: "Đỗ Thu Trà", done: false },
+    { name: "Nguyễn Thu Trang", done: true },
+    { name: "Đinh Thị Minh Trang", done: true },
+    { name: "Tống Mỹ Uyên", done: false },
+    { name: "Nguyễn Thị Thuỳ Vân", done: true },
+    { name: "Nguyễn Yến Chi", done: true }
+  ]
+};
+// ===== CONFIG END =====
+</script>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --border: #e2e8f0;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --warn-soft: #fef9c3;
+    --warn-text: #854d0e;
+    --shadow: 0 1px 3px rgba(15, 23, 42, .08);
+  }
+  html[data-theme="dark"] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #60a5fa;
+    --accent-soft: #1e3a5f;
+    --border: #334155;
+    --danger: #f87171;
+    --danger-soft: #451a1a;
+    --ok: #4ade80;
+    --ok-soft: #14351f;
+    --warn-soft: #3a3110;
+    --warn-text: #fde047;
+    --shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    transition: background .3s, color .3s;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0 16px; }
+  header h1 { font-size: 1.15rem; font-weight: 700; }
+  header h1 small { display: block; font-size: .75rem; font-weight: 400; color: var(--muted); }
+  .theme-btn {
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font-size: .8rem; cursor: pointer; white-space: nowrap;
+  }
+
+  nav { display: flex; gap: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  nav button {
+    flex: 1; border: 0; background: transparent; color: var(--muted);
+    padding: 9px 4px; border-radius: 9px; font-size: .85rem; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  nav button.active { background: var(--accent); color: #fff; }
+  html[data-theme="dark"] nav button.active { color: #0f172a; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 10px; }
+
+  .banner {
+    display: none; background: var(--warn-soft); color: var(--warn-text);
+    border-radius: 10px; padding: 10px 14px; font-size: .82rem; margin-bottom: 14px;
+  }
+  .banner.show { display: block; }
+
+  /* Tab Hôm nay */
+  .today-name { font-size: 2rem; font-weight: 800; color: var(--accent); margin: 6px 0 2px; overflow-wrap: break-word; }
+  .today-date { font-size: .9rem; color: var(--muted); }
+  .today-meta { display: inline-block; margin-top: 8px; font-size: .78rem; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 3px 12px; font-weight: 600; }
+  .no-class { font-size: 1.2rem; font-weight: 700; color: var(--muted); margin: 6px 0; }
+  .next-name { font-size: 1.25rem; font-weight: 700; }
+
+  /* Tab Tuần này */
+  .week-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; background: var(--card);
+  }
+  .week-row.today-row { border-color: var(--accent); background: var(--accent-soft); }
+  .week-row .day-badge {
+    min-width: 52px; text-align: center; font-weight: 700; font-size: .85rem;
+    background: var(--bg); border-radius: 9px; padding: 6px 4px;
+  }
+  .week-row.today-row .day-badge { background: var(--accent); color: #fff; }
+  html[data-theme="dark"] .week-row.today-row .day-badge { color: #0f172a; }
+  .week-row .day-date { font-size: .72rem; color: var(--muted); font-weight: 400; display: block; }
+  .week-row.today-row .day-date { color: inherit; opacity: .8; }
+  .week-row .who { font-weight: 600; font-size: .95rem; flex: 1; }
+  .week-row .off { color: var(--danger); text-decoration: line-through; font-weight: 700; }
+  .week-row .off-badge { font-size: .72rem; color: var(--danger); background: var(--danger-soft); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+  .today-tag { font-size: .72rem; color: var(--accent); font-weight: 700; }
+  .week-row .na { color: var(--muted); font-weight: 400; font-size: .85rem; }
+
+  /* Tab Toàn bộ lịch */
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { text-align: left; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: 0; }
+  tr.hl td { background: var(--accent-soft); }
+  td .dow { color: var(--muted); font-size: .78rem; }
+  .round-tag { font-size: .72rem; border-radius: 999px; padding: 2px 10px; font-weight: 600; white-space: nowrap; }
+  .round-1 { background: var(--ok-soft); color: var(--ok); }
+  .round-n { background: var(--accent-soft); color: var(--accent); }
+
+  /* Tab Quản lý */
+  input[type="password"], input[type="text"], input[type="date"] {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg); color: var(--text); font-size: .95rem;
+  }
+  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .btn {
+    display: inline-block; border: 0; background: var(--accent); color: #fff;
+    padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; cursor: pointer;
+  }
+  html[data-theme="dark"] .btn { color: #0f172a; }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn.small { padding: 6px 12px; font-size: .8rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: .82rem; font-weight: 600; margin-bottom: 6px; color: var(--muted); }
+  .err-msg { color: var(--danger); font-size: .82rem; margin-top: 8px; display: none; }
+
+  .day-checks { display: flex; flex-wrap: wrap; gap: 6px; }
+  .day-checks label {
+    display: flex; align-items: center; gap: 4px; border: 1px solid var(--border);
+    border-radius: 9px; padding: 6px 10px; font-size: .85rem; cursor: pointer; user-select: none;
+  }
+  .day-checks label.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .day-checks input { display: none; }
+
+  .off-list { display: flex; flex-direction: column; gap: 6px; }
+  .off-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: .88rem;
+  }
+  .off-row.is-off { border-color: var(--danger); background: var(--danger-soft); }
+  .off-row.no-school { opacity: .45; }
+  .off-row .lbl { flex: 1; }
+  .off-row .lbl b { font-weight: 700; }
+  .toggle {
+    position: relative; width: 42px; height: 24px; border-radius: 999px; border: 0;
+    background: var(--border); cursor: pointer; flex-shrink: 0; transition: background .15s;
+  }
+  .toggle::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+  }
+  .toggle.on { background: var(--danger); }
+  .toggle.on::after { left: 21px; }
+
+  .stu-row {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; margin-bottom: 6px;
+  }
+  .stu-row .idx { min-width: 24px; text-align: right; font-size: .78rem; color: var(--muted); }
+  .stu-row input[type="text"] { flex: 1; padding: 6px 10px; font-size: .88rem; min-width: 0; }
+  .stu-row .done-check { display: flex; align-items: center; gap: 3px; font-size: .72rem; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; }
+  .icon-btn {
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: .8rem; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:disabled { opacity: .3; cursor: default; }
+  .icon-btn.del { color: var(--danger); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .hint { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+  .copied-msg { color: var(--ok); font-size: .82rem; font-weight: 600; display: none; margin-top: 8px; }
+  .add-off-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-off-row input { flex: 1; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  footer { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📚 Lịch lấy dụng cụ học tập<small id="subTitle"></small></h1>
+    <button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button>
+  </header>
+
+  <div class="banner" id="draftBanner">
+    ✏️ Đang xem <b>bản nháp</b> lưu trên máy này (chưa công bố). Vào tab <b>Quản lý</b> → «Sao chép cấu hình» rồi dán vào file trên GitHub để cả lớp thấy, hoặc «Bỏ bản nháp».
+  </div>
+
+  <nav>
+    <button id="tabbtn-today" class="active" onclick="switchTab('today')">Hôm nay</button>
+    <button id="tabbtn-week" onclick="switchTab('week')">Tuần này</button>
+    <button id="tabbtn-all" onclick="switchTab('all')">Toàn bộ lịch</button>
+    <button id="tabbtn-admin" onclick="switchTab('admin')">Quản lý</button>
+  </nav>
+
+  <div id="tab-today" class="tab-panel active"></div>
+  <div id="tab-week" class="tab-panel"></div>
+  <div id="tab-all" class="tab-panel"></div>
+  <div id="tab-admin" class="tab-panel"></div>
+
+  <footer>© 2026 Lớp 1TCT-26-1 · Lịch lấy dụng cụ học tập · Made by HauDT</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   TIỆN ÍCH NGÀY THÁNG (dùng giờ địa phương, tránh lệch UTC)
+   ============================================================ */
+const DOW_LABEL = ["CN", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+const DOW_SHORT = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+
+function parseDate(s) { // "YYYY-MM-DD" -> Date (local midnight)
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+function fmtISO(d) {
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function fmtVN(d) { // 25/08/2026
+  const p = n => String(n).padStart(2, "0");
+  return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear();
+}
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function todayLocal() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+/* ============================================================
+   DỮ LIỆU: CONFIG gốc trong file + bản nháp localStorage
+   ============================================================ */
+const DRAFT_KEY = "llcdht_draft_v1";
+const AUTH_KEY = "llcdht_admin";
+const THEME_KEY = "llcdht_theme";
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.students) || !d.startDate || !Array.isArray(d.schoolDays)) return null;
+    return d;
+  } catch (e) { return null; }
+}
+function saveDraft(cfg) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(cfg)); } catch (e) { /* bỏ qua */ }
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* bỏ qua */ }
+}
+function baseConfig() { // bản sao sâu của CONFIG trong file
+  return JSON.parse(JSON.stringify({
+    startDate: CONFIG.startDate,
+    schoolDays: CONFIG.schoolDays,
+    disabledDates: CONFIG.disabledDates,
+    students: CONFIG.students
+  }));
+}
+function activeConfig() { return loadDraft() || baseConfig(); }
+function hasDraft() { return loadDraft() !== null; }
+
+/* ============================================================
+   LOGIC PHÂN CÔNG
+   Buổi học thực tế thứ n (bỏ qua ngày nghỉ) -> người thứ n
+   trong hàng đợi: [các bạn CHƯA đợt 1] + vòng lặp cả lớp.
+   ============================================================ */
+function isSchoolSession(cfg, d) { // d là Date; có buổi học thật sự (đúng thứ + không nghỉ)
+  return cfg.schoolDays.includes(d.getDay()) && !cfg.disabledDates.includes(fmtISO(d));
+}
+function personForSession(cfg, n) { // n >= 1
+  const pending = cfg.students.filter(s => !s.done);
+  if (n <= pending.length) {
+    return { name: pending[n - 1].name, tag: "Đợt 1", cls: "round-1" };
+  }
+  const m = n - pending.length - 1; // 0-based trong phần quay vòng
+  const total = cfg.students.length;
+  if (total === 0) return { name: "—", tag: "", cls: "round-n" };
+  const round = 2 + Math.floor(m / total);
+  return { name: cfg.students[m % total].name, tag: "Vòng " + round, cls: "round-n" };
+}
+// Trả về số thứ tự buổi học của ngày d (1-based), hoặc null nếu d không phải buổi học
+function sessionNumberOf(cfg, d) {
+  const start = parseDate(cfg.startDate);
+  if (d < start) return null;
+  if (!isSchoolSession(cfg, d)) return null;
+  let n = 0;
+  for (let cur = new Date(start); cur <= d; cur = addDays(cur, 1)) {
+    if (isSchoolSession(cfg, cur)) n++;
+  }
+  return n;
+}
+// Danh sách `count` buổi học kể từ ngày fromDate (gồm cả fromDate nếu là buổi học)
+function upcomingSessions(cfg, fromDate, count) {
+  const out = [];
+  const start = parseDate(cfg.startDate);
+  let cur = fromDate < start ? new Date(start) : new Date(fromDate);
+  // đếm số buổi trước cur để biết đang ở buổi thứ mấy
+  let n = 0;
+  for (let d = new Date(start); d < cur; d = addDays(d, 1)) {
+    if (isSchoolSession(cfg, d)) n++;
+  }
+  let guard = 0;
+  while (out.length < count && guard < 5000) {
+    if (isSchoolSession(cfg, cur)) {
+      n++;
+      out.push({ date: new Date(cur), n, person: personForSession(cfg, n) });
+    }
+    cur = addDays(cur, 1);
+    guard++;
+  }
+  return out;
+}
+
+/* ============================================================
+   GIAO DIỆN CHUNG
+   ============================================================ */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+let currentTab = "today";
+function switchTab(t) {
+  currentTab = t;
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + t).classList.add("active");
+  document.getElementById("tabbtn-" + t).classList.add("active");
+  renderAll();
+}
+function renderAll() {
+  const cfg = activeConfig();
+  document.getElementById("draftBanner").classList.toggle("show", hasDraft());
+  document.getElementById("subTitle").textContent =
+    "Áp dụng từ " + fmtVN(parseDate(cfg.startDate)) + " · " + cfg.students.length + " bạn";
+  if (currentTab === "today") renderToday(cfg);
+  else if (currentTab === "week") renderWeek(cfg);
+  else if (currentTab === "all") renderAllSchedule(cfg);
+  else renderAdmin(cfg);
+}
+
+/* ---------- Tab Hôm nay ---------- */
+function renderToday(cfg) {
+  const today = todayLocal();
+  const iso = fmtISO(today);
+  const n = sessionNumberOf(cfg, today);
+  let html = "";
+
+  if (n !== null) {
+    const p = personForSession(cfg, n);
+    html += `<div class="card">
+      <h2>Hôm nay trực — ${DOW_LABEL[today.getDay()]}, ${fmtVN(today)}</h2>
+      <div class="today-name">${esc(p.name)}</div>
+      <span class="today-meta">Buổi thứ ${n} · ${esc(p.tag)}</span>
+    </div>`;
+  } else {
+    let reason;
+    if (today < parseDate(cfg.startDate)) reason = "Lịch bắt đầu từ " + fmtVN(parseDate(cfg.startDate)) + ".";
+    else if (cfg.disabledDates.includes(iso)) reason = "Hôm nay là <b style='color:var(--danger)'>ngày nghỉ</b>.";
+    else reason = "Hôm nay không có buổi học.";
+    html += `<div class="card">
+      <h2>${DOW_LABEL[today.getDay()]}, ${fmtVN(today)}</h2>
+      <div class="no-class">${reason}</div>
+    </div>`;
+  }
+
+  // Buổi kế tiếp (sau hôm nay)
+  const next = upcomingSessions(cfg, addDays(today, 1), 1)[0];
+  if (next) {
+    html += `<div class="card">
+      <h2>Buổi kế tiếp — ${DOW_LABEL[next.date.getDay()]}, ${fmtVN(next.date)}</h2>
+      <div class="next-name">${esc(next.person.name)}</div>
+      <span class="round-tag ${next.person.cls}" style="margin-top:6px;display:inline-block">Buổi thứ ${next.n} · ${esc(next.person.tag)}</span>
+    </div>`;
+  }
+  document.getElementById("tab-today").innerHTML = html;
+}
+
+/* ---------- Tab Tuần này ---------- */
+function renderWeek(cfg) {
+  const today = todayLocal();
+  // Tuần bắt đầu Thứ 2
+  const monday = addDays(today, -((today.getDay() + 6) % 7));
+  const start = parseDate(cfg.startDate);
+  let rows = "";
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(monday, i);
+    const dow = d.getDay();
+    if (!cfg.schoolDays.includes(dow)) continue; // chỉ hiện các thứ có buổi học
+    const iso = fmtISO(d);
+    const isToday = iso === fmtISO(today);
+    const isOff = cfg.disabledDates.includes(iso);
+    let who;
+    if (d < start) {
+      who = `<span class="na">Chưa áp dụng lịch</span>`;
+    } else if (isOff) {
+      who = `<span class="off">Nghỉ học</span> <span class="off-badge">Nghỉ</span>`;
+    } else {
+      const n = sessionNumberOf(cfg, d);
+      const p = personForSession(cfg, n);
+      who = `${esc(p.name)} <span class="round-tag ${p.cls}">${esc(p.tag)}</span>`;
+    }
+    rows += `<div class="week-row${isToday ? " today-row" : ""}">
+      <div class="day-badge">${DOW_SHORT[dow]}<span class="day-date">${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}</span></div>
+      <div class="who">${who}</div>
+      ${isToday ? '<span class="today-tag">HÔM NAY</span>' : ""}
+    </div>`;
+  }
+  document.getElementById("tab-week").innerHTML = `<div class="card">
+    <h2>Tuần ${fmtVN(monday)} → ${fmtVN(addDays(monday, 6))}</h2>
+    ${rows || '<div class="na" style="color:var(--muted)">Tuần này không có buổi học nào.</div>'}
+  </div>`;
+}
+
+/* ---------- Tab Toàn bộ lịch ---------- */
+function renderAllSchedule(cfg) {
+  const today = todayLocal();
+  const list = upcomingSessions(cfg, today, 50); // ẩn buổi đã qua, hiện 50 buổi tới
+  const todayISO = fmtISO(today);
+  let rows = list.map(s => `<tr class="${fmtISO(s.date) === todayISO ? "hl" : ""}">
+      <td>${fmtVN(s.date)}<br><span class="dow">${DOW_LABEL[s.date.getDay()]}</span></td>
+      <td><b>${esc(s.person.name)}</b></td>
+      <td><span class="round-tag ${s.person.cls}">${esc(s.person.tag)}</span></td>
+    </tr>`).join("");
+  document.getElementById("tab-all").innerHTML = `<div class="card">
+    <h2>50 buổi học sắp tới (các buổi đã qua được ẩn)</h2>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Ngày</th><th>Bạn trực</th><th>Đợt / Vòng</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </div>`;
+}
+
+/* ============================================================
+   TAB QUẢN LÝ
+   ============================================================ */
+function isAdmin() {
+  try { return sessionStorage.getItem(AUTH_KEY) === "1"; } catch (e) { return false; }
+}
+function tryLogin() {
+  const v = document.getElementById("pwInput").value;
+  if (v === CONFIG.password) {
+    try { sessionStorage.setItem(AUTH_KEY, "1"); } catch (e) { /* vẫn cho vào trong phiên này */ }
+    window._adminFallback = true;
+    renderAll();
+  } else {
+    document.getElementById("pwErr").style.display = "block";
+  }
+}
+function logoutAdmin() {
+  try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { }
+  window._adminFallback = false;
+  renderAll();
+}
+
+function renderAdmin(cfg) {
+  const el = document.getElementById("tab-admin");
+  if (!isAdmin() && !window._adminFallback) {
+    el.innerHTML = `<div class="card">
+      <h2>Đăng nhập quản lý</h2>
+      <div class="field">
+        <label for="pwInput">Mật khẩu</label>
+        <input type="password" id="pwInput" placeholder="Nhập mật khẩu…" autocomplete="off">
+      </div>
+      <button class="btn" onclick="tryLogin()">Đăng nhập</button>
+      <div class="err-msg" id="pwErr">Sai mật khẩu, thử lại nhé.</div>
+    </div>`;
+    const inp = document.getElementById("pwInput");
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+    return;
+  }
+
+  const today = todayLocal();
+
+  // --- 14 ngày tới để toggle nghỉ ---
+  let offRows = "";
+  for (let i = 0; i < 14; i++) {
+    const d = addDays(today, i);
+    const iso = fmtISO(d);
+    const isSchoolDow = cfg.schoolDays.includes(d.getDay());
+    const isOff = cfg.disabledDates.includes(iso);
+    offRows += `<div class="off-row ${isOff ? "is-off" : ""} ${isSchoolDow ? "" : "no-school"}">
+      <span class="lbl"><b>${DOW_SHORT[d.getDay()]}</b> ${fmtVN(d)}${i === 0 ? " · hôm nay" : ""}${isSchoolDow ? "" : " · không có buổi học"}</span>
+      ${isSchoolDow || isOff ? `<button class="toggle ${isOff ? "on" : ""}" title="Bật/tắt nghỉ học" onclick="toggleOff('${iso}')"></button>` : ""}
+    </div>`;
+  }
+
+  // --- các ngày nghỉ khác (ngoài 14 ngày tới) ---
+  const horizon = fmtISO(addDays(today, 13));
+  const otherOffs = cfg.disabledDates.filter(x => x < fmtISO(today) || x > horizon).sort();
+  let otherOffHtml = otherOffs.map(x => {
+    const d = parseDate(x);
+    return `<div class="off-row is-off">
+      <span class="lbl"><b>${DOW_SHORT[d.getDay()]}</b> ${fmtVN(d)}</span>
+      <button class="toggle on" onclick="toggleOff('${x}')"></button>
+    </div>`;
+  }).join("");
+
+  // --- checkbox thứ có buổi học ---
+  const dayChecks = [1, 2, 3, 4, 5, 6, 0].map(dw => {
+    const on = cfg.schoolDays.includes(dw);
+    return `<label class="${on ? "on" : ""}"><input type="checkbox" ${on ? "checked" : ""} onchange="toggleSchoolDay(${dw})">${DOW_SHORT[dw]}</label>`;
+  }).join("");
+
+  // --- danh sách sinh viên ---
+  const stuRows = cfg.students.map((s, i) => `<div class="stu-row">
+      <span class="idx">${i + 1}.</span>
+      <input type="text" value="${esc(s.name)}" onchange="editStudentName(${i}, this.value)">
+      <label class="done-check" title="Đã lấy dụng cụ đợt 1">
+        <input type="checkbox" ${s.done ? "checked" : ""} onchange="toggleStudentDone(${i})">Đợt&nbsp;1
+      </label>
+      <button class="icon-btn" ${i === 0 ? "disabled" : ""} onclick="moveStudent(${i}, -1)" title="Chuyển lên">↑</button>
+      <button class="icon-btn" ${i === cfg.students.length - 1 ? "disabled" : ""} onclick="moveStudent(${i}, 1)" title="Chuyển xuống">↓</button>
+      <button class="icon-btn del" onclick="removeStudent(${i})" title="Xóa">✕</button>
+    </div>`).join("");
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>Ngày nghỉ — 14 ngày tới</h2>
+      <div class="off-list">${offRows}</div>
+      <div class="add-off-row">
+        <input type="date" id="customOffDate">
+        <button class="btn small" onclick="addCustomOff()">Thêm ngày nghỉ</button>
+      </div>
+      ${otherOffs.length ? `<div class="hint" style="margin-top:14px;font-weight:600">Ngày nghỉ khác:</div><div class="off-list" style="margin-top:6px">${otherOffHtml}</div>` : ""}
+      <div class="hint">Gạt sang đỏ = nghỉ học. Ngày nghỉ không được đếm, toàn bộ lịch tự lùi lại, không ai mất lượt.</div>
+    </div>
+
+    <div class="card">
+      <h2>Cài đặt lịch</h2>
+      <div class="field">
+        <label>Ngày bắt đầu áp dụng</label>
+        <input type="date" value="${esc(cfg.startDate)}" onchange="changeStartDate(this.value)">
+      </div>
+      <div class="field">
+        <label>Các thứ có buổi học</label>
+        <div class="day-checks">${dayChecks}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Danh sách lớp (${cfg.students.length} bạn)</h2>
+      ${stuRows}
+      <div class="actions">
+        <button class="btn small secondary" onclick="addStudent()">+ Thêm bạn mới</button>
+      </div>
+      <div class="hint">Tích «Đợt 1» = đã lấy dụng cụ đợt 1 (không nằm trong nhóm ưu tiên trực trước).</div>
+    </div>
+
+    <div class="card">
+      <h2>Công bố thay đổi</h2>
+      <div class="hint" style="margin-top:0">
+        Mọi chỉnh sửa ở trên chỉ lưu <b>tạm trên máy này</b>. Để cả lớp thấy: bấm nút dưới để sao chép
+        đoạn CONFIG mới → mở file <code>index.html</code> trên GitHub → dán đè lên đoạn giữa hai dòng
+        <code>CONFIG START</code> và <code>CONFIG END</code> → Commit.
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="copyConfig()">📋 Sao chép cấu hình</button>
+        <button class="btn danger" ${hasDraft() ? "" : "disabled"} onclick="discardDraft()">Bỏ bản nháp</button>
+        <button class="btn secondary" onclick="logoutAdmin()">Đăng xuất</button>
+      </div>
+      <div class="copied-msg" id="copiedMsg">✓ Đã sao chép! Dán vào file trên GitHub rồi commit nhé.</div>
+    </div>`;
+}
+
+/* ---------- Hành động quản lý (mỗi hành động = sửa nháp + render lại) ---------- */
+function mutate(fn) {
+  const cfg = activeConfig();
+  fn(cfg);
+  saveDraft(cfg);
+  renderAll();
+}
+function toggleOff(iso) {
+  mutate(cfg => {
+    const i = cfg.disabledDates.indexOf(iso);
+    if (i >= 0) cfg.disabledDates.splice(i, 1); else cfg.disabledDates.push(iso);
+    cfg.disabledDates.sort();
+  });
+}
+function addCustomOff() {
+  const v = document.getElementById("customOffDate").value;
+  if (!v) return;
+  mutate(cfg => { if (!cfg.disabledDates.includes(v)) { cfg.disabledDates.push(v); cfg.disabledDates.sort(); } });
+}
+function changeStartDate(v) {
+  if (!v) return;
+  mutate(cfg => { cfg.startDate = v; });
+}
+function toggleSchoolDay(dw) {
+  mutate(cfg => {
+    const i = cfg.schoolDays.indexOf(dw);
+    if (i >= 0) cfg.schoolDays.splice(i, 1); else { cfg.schoolDays.push(dw); cfg.schoolDays.sort(); }
+  });
+}
+function editStudentName(i, v) {
+  const name = v.trim();
+  if (!name) { renderAll(); return; }
+  mutate(cfg => { cfg.students[i].name = name; });
+}
+function toggleStudentDone(i) {
+  mutate(cfg => { cfg.students[i].done = !cfg.students[i].done; });
+}
+function moveStudent(i, dir) {
+  mutate(cfg => {
+    const j = i + dir;
+    if (j < 0 || j >= cfg.students.length) return;
+    [cfg.students[i], cfg.students[j]] = [cfg.students[j], cfg.students[i]];
+  });
+}
+function removeStudent(i) {
+  const cfg = activeConfig();
+  if (!confirm("Xóa «" + cfg.students[i].name + "» khỏi danh sách?")) return;
+  mutate(c => { c.students.splice(i, 1); });
+}
+function addStudent() {
+  const name = prompt("Tên bạn mới:");
+  if (!name || !name.trim()) return;
+  mutate(cfg => { cfg.students.push({ name: name.trim(), done: false }); });
+}
+function discardDraft() {
+  if (!confirm("Bỏ toàn bộ bản nháp, quay về dữ liệu gốc trong file?")) return;
+  clearDraft();
+  renderAll();
+}
+
+/* ---------- Sinh & sao chép đoạn CONFIG ---------- */
+function generateConfigBlock() {
+  const cfg = activeConfig();
+  const stu = cfg.students.map(s =>
+    `    { name: ${JSON.stringify(s.name)}, done: ${s.done ? "true" : "false"} }`
+  ).join(",\n");
+  return `// ===== CONFIG START =====
+const CONFIG = {
+  password: ${JSON.stringify(CONFIG.password)},
+  startDate: ${JSON.stringify(cfg.startDate)},
+  // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
+  schoolDays: [${cfg.schoolDays.join(", ")}],
+  // Danh sách ngày nghỉ, định dạng "YYYY-MM-DD"
+  disabledDates: [${cfg.disabledDates.map(x => JSON.stringify(x)).join(", ")}],
+  // done = true nghĩa là ĐÃ lấy dụng cụ đợt 1
+  students: [
+${stu}
+  ]
+};
+// ===== CONFIG END =====`;
+}
+function copyConfig() {
+  const text = generateConfigBlock();
+  const showOk = () => {
+    const m = document.getElementById("copiedMsg");
+    if (m) { m.style.display = "block"; setTimeout(() => { m.style.display = "none"; }, 4000); }
+  };
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); showOk(); }
+    catch (e) { prompt("Sao chép thủ công đoạn dưới:", text); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showOk, fallback);
+  } else fallback();
+}
+
+/* ============================================================
+   GIAO DIỆN SÁNG / TỐI THEO GIỜ (auto: 6h–18h sáng, còn lại tối)
+   ============================================================ */
+function getThemePref() {
+  try { return localStorage.getItem(THEME_KEY) || "auto"; } catch (e) { return "auto"; }
+}
+function applyTheme() {
+  const pref = getThemePref();
+  let dark;
+  if (pref === "light") dark = false;
+  else if (pref === "dark") dark = true;
+  else { const h = new Date().getHours(); dark = (h < 6 || h >= 18); }
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  const btn = document.getElementById("themeBtn");
+  if (btn) btn.textContent = pref === "auto" ? "🕐 Tự động" : (pref === "light" ? "☀️ Sáng" : "🌙 Tối");
+}
+function cycleTheme() {
+  const order = ["auto", "light", "dark"];
+  const next = order[(order.indexOf(getThemePref()) + 1) % 3];
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { }
+  applyTheme();
+}
+setInterval(applyTheme, 5 * 60 * 1000); // giờ đổi thì tự chuyển theme
+
+/* ============================================================ */
+applyTheme();
+renderAll();
+// Qua nửa đêm / mở lại tab thì tự cập nhật
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { applyTheme(); renderAll(); } });
+</script>
+</body>
+</html>
