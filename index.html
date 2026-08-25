@@ -130,7 +130,7 @@ const CONFIG = {
   .banner.show { display: block; }
 
   /* Tab Hôm nay */
-  .today-name { font-size: 2rem; font-weight: 800; color: var(--accent); margin: 6px 0 2px; overflow-wrap: break-word; }
+  .today-name { font-size: clamp(1.5rem, 7vw, 2rem); font-weight: 800; color: var(--accent); margin: 6px 0 2px; overflow-wrap: break-word; }
   .today-date { font-size: .9rem; color: var(--muted); }
   .today-meta { display: inline-block; margin-top: 8px; font-size: .78rem; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 3px 12px; font-weight: 600; }
   .no-class { font-size: 1.2rem; font-weight: 700; color: var(--muted); margin: 6px 0; }
@@ -238,6 +238,45 @@ const CONFIG = {
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
+
+  /* ===== Responsive cho mobile / màn hình nhỏ ===== */
+  button, .toggle { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  input[type="date"] { min-width: 0; }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 10px 10px 24px; }
+    header { padding: 6px 0 12px; }
+    header h1 { font-size: 1.02rem; }
+    .theme-btn { padding: 6px 10px; font-size: .74rem; }
+    nav { gap: 3px; padding: 3px; }
+    nav button { padding: 9px 2px; font-size: .74rem; }
+    .card { padding: 14px; border-radius: 12px; }
+    .next-name { font-size: 1.1rem; }
+    table { font-size: .82rem; }
+    th, td { padding: 8px 6px; }
+
+    /* Hàng sinh viên: tên 1 dòng, nút điều khiển xuống dòng dưới */
+    .stu-row { flex-wrap: wrap; row-gap: 6px; }
+    .stu-row input[type="text"] { flex: 1 1 calc(100% - 36px); }
+    .stu-row .done-check { margin-left: 30px; margin-right: auto; }
+    .icon-btn { width: 32px; height: 32px; }
+
+    .add-off-row { flex-wrap: wrap; }
+    .add-off-row .btn { flex: 1 1 auto; }
+    .actions .btn { flex: 1 1 auto; text-align: center; }
+    .off-row { padding: 8px 10px; font-size: .82rem; }
+  }
+
+  @media (max-width: 350px) {
+    nav button { font-size: .68rem; letter-spacing: -.01em; }
+    .week-row { gap: 8px; padding: 10px; }
+    .week-row .day-badge { min-width: 44px; font-size: .78rem; }
+  }
+
+  /* Màn hình rộng: nới nhẹ khung nội dung */
+  @media (min-width: 900px) {
+    .wrap { max-width: 720px; }
+  }
 
   footer {
     text-align: center; font-size: .75rem; color: var(--muted);
