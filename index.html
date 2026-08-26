@@ -751,8 +751,11 @@ function renderAdmin(cfg) {
         Token chỉ lưu trong trình duyệt này, <b>không</b> nằm trong file, không ai khác thấy.
         Bấm «Lưu & đẩy» để tự commit lịch mới — cả lớp thấy sau ~1 phút.
       </div>
+      ${getToken()
+        ? `<div class="push-status ok" style="display:block;margin-bottom:10px">🔑 Đã lưu token trên máy này — lần sau chỉ cần chỉnh rồi bấm «Lưu &amp; đẩy», không phải nhập lại. Khi token hết hạn sẽ báo đỏ, lúc đó dán token mới vào đây.</div>`
+        : `<div class="push-status err" style="display:block;margin-bottom:10px">Chưa có token — dán token vào ô dưới rồi bấm «Chỉ lưu token» hoặc «Lưu &amp; đẩy».</div>`}
       <div class="field" style="margin-bottom:10px">
-        <label>GitHub token</label>
+        <label>GitHub token${getToken() ? " (để trống nếu không đổi)" : ""}</label>
         <input type="password" id="ghToken" autocomplete="off" placeholder="${getToken() ? "•••••• đã lưu — dán token mới để thay" : "github_pat_… hoặc ghp_…"}">
       </div>
       <div class="actions">
