@@ -315,7 +315,7 @@ const CONFIG = {
   </header>
 
   <div class="banner" id="draftBanner">
-    ✏️ Đang xem <b>bản nháp</b> lưu trên máy này (chưa công bố). Vào tab <b>Quản lý</b> → «Sao chép cấu hình» rồi dán vào file trên GitHub để cả lớp thấy, hoặc «Bỏ bản nháp».
+    ✏️ Đang xem <b>bản nháp</b> lưu trên máy này (chưa công bố). Vào tab <b>Quản lý</b> → «🚀 Lưu &amp; đẩy lên GitHub» (hoặc «Sao chép cấu hình» dán thủ công) để cả lớp thấy, hoặc «Bỏ bản nháp».
   </div>
 
   <nav>
@@ -489,7 +489,8 @@ function switchTab(t) {
 }
 function renderAll() {
   const cfg = activeConfig();
-  document.getElementById("draftBanner").classList.toggle("show", hasDraft());
+  // Banner bản nháp chỉ hiện cho admin (nội dung là thao tác quản lý)
+  document.getElementById("draftBanner").classList.toggle("show", hasDraft() && (isAdmin() || window._adminFallback));
   document.getElementById("subTitle").textContent =
     "Áp dụng từ " + fmtVN(parseDate(cfg.startDate));
   if (currentTab === "today") renderToday(cfg);
