@@ -18,47 +18,50 @@ const CONFIG = {
   startDate: "2026-08-25",
   // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
   schoolDays: [1, 2, 3, 5],
-  // Danh sách ngày nghỉ, định dạng "YYYY-MM-DD"
+  // Danh sách ngày nghỉ (không học), định dạng "YYYY-MM-DD"
   disabledDates: [],
-  // done = true nghĩa là ĐÃ lấy dụng cụ đợt 1
+  // Ngày học bù: bật một ngày cụ thể (kể cả cuối tuần) thành buổi học, "YYYY-MM-DD"
+  extraDates: [],
+  // count = số lần bạn đó ĐÃ đi lấy dụng cụ. Ai có count thấp nhất sẽ được xếp trực trước
+  // (tự cân bằng: người đã lấy nhiều lần sẽ được miễn cho tới khi người khác đuổi kịp).
   students: [
-    { name: "Trần Mai Anh", done: true },
-    { name: "Bùi Thúy Anh", done: true },
-    { name: "Đỗ Minh Anh", done: true },
-    { name: "Lê Nguyễn Nhật Anh", done: true },
-    { name: "Ngô Thế Việt Anh", done: false },
-    { name: "Đặng Ngọc Châm", done: true },
-    { name: "Nguyễn Thùy Dương", done: true },
-    { name: "Đỗ Hà Giang", done: true },
-    { name: "Vũ Thanh Hà", done: true },
-    { name: "Đỗ Bảo Hà", done: true },
-    { name: "Đặng Trung Hậu", done: true },
-    { name: "Đỗ Nguyên Hoàng", done: true },
-    { name: "Lương Vân Hồng", done: false },
-    { name: "Trần Quang Huy", done: true },
-    { name: "Bùi Khánh Linh", done: true },
-    { name: "Nguyễn Hoàng Yến Linh", done: false },
-    { name: "Nguyễn Thị Kim Loan", done: true },
-    { name: "Nguyễn Khắc Mạnh", done: true },
-    { name: "Nguyễn Nhật Minh", done: true },
-    { name: "Nguyễn Ngọc Trà My", done: true },
-    { name: "Đào Thị Ngà", done: true },
-    { name: "Nguyễn Quý Ngọc", done: true },
-    { name: "Nguyễn Thị Ánh Nguyệt", done: true },
-    { name: "Nguyễn Yến Nhi", done: true },
-    { name: "Nguyễn Thị Nhung", done: false },
-    { name: "Nguyễn Thị Hồng Nhung", done: true },
-    { name: "Khương Thị Nhung", done: false },
-    { name: "Nguyễn Hà Phương", done: true },
-    { name: "Nguyễn Thị Thanh Tâm", done: true },
-    { name: "Nguyễn Thị Thanh Thảo", done: true },
-    { name: "Phùng Thị Thuỷ", done: true },
-    { name: "Đỗ Thu Trà", done: false },
-    { name: "Nguyễn Thu Trang", done: true },
-    { name: "Đinh Thị Minh Trang", done: true },
-    { name: "Tống Mỹ Uyên", done: false },
-    { name: "Nguyễn Thị Thuỳ Vân", done: true },
-    { name: "Nguyễn Yến Chi", done: true }
+    { name: "Trần Mai Anh", count: 1 },
+    { name: "Bùi Thúy Anh", count: 1 },
+    { name: "Đỗ Minh Anh", count: 1 },
+    { name: "Lê Nguyễn Nhật Anh", count: 1 },
+    { name: "Ngô Thế Việt Anh", count: 0 },
+    { name: "Đặng Ngọc Châm", count: 1 },
+    { name: "Nguyễn Thùy Dương", count: 1 },
+    { name: "Đỗ Hà Giang", count: 1 },
+    { name: "Vũ Thanh Hà", count: 1 },
+    { name: "Đỗ Bảo Hà", count: 1 },
+    { name: "Đặng Trung Hậu", count: 1 },
+    { name: "Đỗ Nguyên Hoàng", count: 1 },
+    { name: "Lương Vân Hồng", count: 0 },
+    { name: "Trần Quang Huy", count: 1 },
+    { name: "Bùi Khánh Linh", count: 1 },
+    { name: "Nguyễn Hoàng Yến Linh", count: 0 },
+    { name: "Nguyễn Thị Kim Loan", count: 1 },
+    { name: "Nguyễn Khắc Mạnh", count: 1 },
+    { name: "Nguyễn Nhật Minh", count: 1 },
+    { name: "Nguyễn Ngọc Trà My", count: 1 },
+    { name: "Đào Thị Ngà", count: 1 },
+    { name: "Nguyễn Quý Ngọc", count: 1 },
+    { name: "Nguyễn Thị Ánh Nguyệt", count: 1 },
+    { name: "Nguyễn Yến Nhi", count: 1 },
+    { name: "Nguyễn Thị Nhung", count: 0 },
+    { name: "Nguyễn Thị Hồng Nhung", count: 1 },
+    { name: "Khương Thị Nhung", count: 0 },
+    { name: "Nguyễn Hà Phương", count: 1 },
+    { name: "Nguyễn Thị Thanh Tâm", count: 1 },
+    { name: "Nguyễn Thị Thanh Thảo", count: 1 },
+    { name: "Phùng Thị Thuỷ", count: 1 },
+    { name: "Đỗ Thu Trà", count: 0 },
+    { name: "Nguyễn Thu Trang", count: 1 },
+    { name: "Đinh Thị Minh Trang", count: 1 },
+    { name: "Tống Mỹ Uyên", count: 0 },
+    { name: "Nguyễn Thị Thuỳ Vân", count: 1 },
+    { name: "Nguyễn Yến Chi", count: 1 }
   ]
 };
 // ===== CONFIG END =====
@@ -211,6 +214,7 @@ const CONFIG = {
     border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: .88rem;
   }
   .off-row.is-off { border-color: var(--danger); background: var(--danger-soft); }
+  .off-row.is-extra { border-color: var(--ok); background: var(--ok-soft); }
   .off-row.no-school { opacity: .45; }
   .off-row .lbl { flex: 1; }
   .off-row .lbl b { font-weight: 700; }
@@ -224,6 +228,11 @@ const CONFIG = {
   }
   .toggle.on { background: var(--danger); }
   .toggle.on::after { left: 21px; }
+  .toggle.green.on { background: var(--ok); }
+
+  .push-status { font-size: .82rem; margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); line-height: 1.45; }
+  .push-status.ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
+  .push-status.err { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
 
   .stu-row {
     display: flex; align-items: center; gap: 6px;
@@ -231,7 +240,9 @@ const CONFIG = {
   }
   .stu-row .idx { min-width: 24px; text-align: right; font-size: .78rem; color: var(--muted); }
   .stu-row input[type="text"] { flex: 1; padding: 6px 10px; font-size: .88rem; min-width: 0; }
-  .stu-row .done-check { display: flex; align-items: center; gap: 3px; font-size: .72rem; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; }
+  .stu-row .count-ctl { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
+  .count-ctl .count-val { min-width: 20px; text-align: center; font-weight: 700; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .count-ctl .icon-btn { width: 26px; height: 26px; font-size: 1rem; line-height: 1; }
   .icon-btn {
     border: 1px solid var(--border); background: var(--bg); color: var(--text);
     width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: .8rem; flex-shrink: 0;
@@ -268,8 +279,9 @@ const CONFIG = {
     /* Hàng sinh viên: tên 1 dòng, nút điều khiển xuống dòng dưới */
     .stu-row { flex-wrap: wrap; row-gap: 6px; }
     .stu-row input[type="text"] { flex: 1 1 calc(100% - 36px); }
-    .stu-row .done-check { margin-left: 30px; margin-right: auto; }
+    .stu-row .count-ctl { margin-left: 30px; margin-right: auto; }
     .icon-btn { width: 32px; height: 32px; }
+    .count-ctl .icon-btn { width: 30px; height: 30px; }
 
     .add-off-row { flex-wrap: wrap; }
     .add-off-row .btn { flex: 1 1 auto; }
@@ -350,6 +362,9 @@ function todayLocal() { const n = new Date(); return new Date(n.getFullYear(), n
 const DRAFT_KEY = "llcdht_draft_v1";
 const AUTH_KEY = "llcdht_admin";
 const THEME_KEY = "llcdht_theme";
+const TOKEN_KEY = "llcdht_gh_token";
+// Thông tin repo để đẩy tự động (không phải bí mật). Token mới là thứ bí mật, lưu riêng.
+const GH = { owner: "trunghau2001", repo: "dung-cu-hoc-tap", branch: "main", path: "index.html" };
 
 function loadDraft() {
   try {
@@ -371,10 +386,22 @@ function baseConfig() { // bản sao sâu của CONFIG trong file
     startDate: CONFIG.startDate,
     schoolDays: CONFIG.schoolDays,
     disabledDates: CONFIG.disabledDates,
+    extraDates: CONFIG.extraDates || [],
     students: CONFIG.students
   }));
 }
-function activeConfig() { return loadDraft() || baseConfig(); }
+// Chuẩn hóa: bảo đảm đủ trường & tương thích bản nháp cũ (done -> count)
+function normalizeCfg(cfg) {
+  if (!Array.isArray(cfg.schoolDays)) cfg.schoolDays = [];
+  if (!Array.isArray(cfg.disabledDates)) cfg.disabledDates = [];
+  if (!Array.isArray(cfg.extraDates)) cfg.extraDates = [];
+  cfg.students = (cfg.students || []).map(s => ({
+    name: s.name,
+    count: typeof s.count === "number" ? Math.max(0, s.count | 0) : (s.done ? 1 : 0)
+  }));
+  return cfg;
+}
+function activeConfig() { return normalizeCfg(loadDraft() || baseConfig()); }
 function hasDraft() { return loadDraft() !== null; }
 
 /* ============================================================
@@ -382,19 +409,35 @@ function hasDraft() { return loadDraft() !== null; }
    Buổi học thực tế thứ n (bỏ qua ngày nghỉ) -> người thứ n
    trong hàng đợi: [các bạn CHƯA đợt 1] + vòng lặp cả lớp.
    ============================================================ */
-function isSchoolSession(cfg, d) { // d là Date; có buổi học thật sự (đúng thứ + không nghỉ)
-  return cfg.schoolDays.includes(d.getDay()) && !cfg.disabledDates.includes(fmtISO(d));
+function isSchoolSession(cfg, d) { // d là Date; có buổi học thật sự
+  const iso = fmtISO(d);
+  if (cfg.disabledDates.includes(iso)) return false;         // ngày nghỉ luôn thắng
+  return cfg.schoolDays.includes(d.getDay())                  // thứ có học cố định
+      || (cfg.extraDates || []).includes(iso);                // hoặc ngày học bù
+}
+// Xếp lịch tự cân bằng: mỗi buổi giao cho bạn có "số lần đã lấy" thấp nhất
+// (đồng hạng thì theo thứ tự danh sách). Người đã lấy nhiều lần được miễn cho tới khi
+// mọi người đuổi kịp. Trả về mảng { idx, level } cho các buổi 1..upto.
+function buildAssignments(cfg, upto) {
+  const n = cfg.students.length;
+  const out = [];
+  if (n === 0) return out;
+  const counts = cfg.students.map(s => Math.max(0, s.count | 0));
+  for (let k = 0; k < upto; k++) {
+    let mi = 0;
+    for (let i = 1; i < n; i++) if (counts[i] < counts[mi]) mi = i;
+    counts[mi]++;
+    out.push({ idx: mi, level: counts[mi] });
+  }
+  return out;
 }
 function personForSession(cfg, n) { // n >= 1
-  const pending = cfg.students.filter(s => !s.done);
-  if (n <= pending.length) {
-    return { name: pending[n - 1].name, tag: "Đợt 1", cls: "round-1" };
-  }
-  const m = n - pending.length - 1; // 0-based trong phần quay vòng
-  const total = cfg.students.length;
-  if (total === 0) return { name: "—", tag: "", cls: "round-n" };
-  const round = 2 + Math.floor(m / total);
-  return { name: cfg.students[m % total].name, tag: "Vòng " + round, cls: "round-n" };
+  if (cfg.students.length === 0 || n < 1) return { name: "—", tag: "", cls: "round-n" };
+  const a = buildAssignments(cfg, n);
+  const { idx, level } = a[n - 1];
+  const s = cfg.students[idx];
+  if (level === 1) return { name: s.name, tag: "Đợt 1", cls: "round-1" };
+  return { name: s.name, tag: "Vòng " + level, cls: "round-n" };
 }
 // Trả về số thứ tự buổi học của ngày d (1-based), hoặc null nếu d không phải buổi học
 function sessionNumberOf(cfg, d) {
@@ -636,13 +679,27 @@ function renderAdmin(cfg) {
   const stuRows = cfg.students.map((s, i) => `<div class="stu-row">
       <span class="idx">${i + 1}.</span>
       <input type="text" value="${esc(s.name)}" onchange="editStudentName(${i}, this.value)">
-      <label class="done-check" title="Đã lấy dụng cụ đợt 1">
-        <input type="checkbox" ${s.done ? "checked" : ""} onchange="toggleStudentDone(${i})">Đợt&nbsp;1
-      </label>
+      <span class="count-ctl" title="Số lần đã đi lấy dụng cụ">
+        <button class="icon-btn" ${(s.count | 0) <= 0 ? "disabled" : ""} onclick="changeCount(${i}, -1)" title="Bớt 1 lần">−</button>
+        <span class="count-val">${s.count | 0}</span>
+        <button class="icon-btn" onclick="changeCount(${i}, 1)" title="Thêm 1 lần">+</button>
+      </span>
       <button class="icon-btn" ${i === 0 ? "disabled" : ""} onclick="moveStudent(${i}, -1)" title="Chuyển lên">↑</button>
       <button class="icon-btn" ${i === cfg.students.length - 1 ? "disabled" : ""} onclick="moveStudent(${i}, 1)" title="Chuyển xuống">↓</button>
       <button class="icon-btn del" onclick="removeStudent(${i})" title="Xóa">✕</button>
     </div>`).join("");
+
+  // --- danh sách ngày học bù ---
+  const extras = cfg.extraDates.slice().sort();
+  const extraList = extras.length
+    ? `<div class="off-list">` + extras.map(x => {
+        const d = parseDate(x);
+        return `<div class="off-row is-extra">
+          <span class="lbl"><b>${DOW_SHORT[d.getDay()]}</b> ${fmtVN(d)} · học bù</span>
+          <button class="toggle green on" title="Bỏ ngày học bù" onclick="toggleExtra('${x}')"></button>
+        </div>`;
+      }).join("") + `</div>`
+    : `<div class="hint" style="margin-top:0">Chưa có ngày học bù nào.</div>`;
 
   el.innerHTML = `
     <div class="card">
@@ -654,6 +711,16 @@ function renderAdmin(cfg) {
       </div>
       ${otherOffs.length ? `<div class="hint" style="margin-top:14px;font-weight:600">Ngày nghỉ khác:</div><div class="off-list" style="margin-top:6px">${otherOffHtml}</div>` : ""}
       <div class="hint">Gạt sang đỏ = nghỉ học. Ngày nghỉ không được đếm, toàn bộ lịch tự lùi lại, không ai mất lượt.</div>
+    </div>
+
+    <div class="card">
+      <h2>Ngày học bù</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px">Bật một ngày cụ thể (kể cả cuối tuần) thành buổi học, mà <b>không</b> biến mọi tuần thành buổi học. Ngày học bù được tính là 1 buổi như bình thường.</div>
+      ${extraList}
+      <div class="add-off-row">
+        <input type="date" id="customExtraDate">
+        <button class="btn small" onclick="addExtraDate()">Thêm ngày học bù</button>
+      </div>
     </div>
 
     <div class="card">
@@ -674,15 +741,34 @@ function renderAdmin(cfg) {
       <div class="actions">
         <button class="btn small secondary" onclick="addStudent()">+ Thêm bạn mới</button>
       </div>
-      <div class="hint">Tích «Đợt 1» = đã lấy dụng cụ đợt 1 (không nằm trong nhóm ưu tiên trực trước).</div>
+      <div class="hint">Số bên phải mỗi tên = <b>số lần bạn đó đã đi lấy dụng cụ</b>. Ai có số thấp nhất được xếp trực trước; người đã lấy nhiều lần sẽ được miễn cho tới khi người khác đuổi kịp. Bạn mới thêm mặc định là 0.</div>
     </div>
 
     <div class="card">
-      <h2>Công bố thay đổi</h2>
+      <h2>Đẩy tự động lên GitHub</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px">
+        Dán một <b>GitHub token</b> (fine-grained, quyền <b>Contents: Read and write</b> cho repo này).
+        Token chỉ lưu trong trình duyệt này, <b>không</b> nằm trong file, không ai khác thấy.
+        Bấm «Lưu & đẩy» để tự commit lịch mới — cả lớp thấy sau ~1 phút.
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>GitHub token</label>
+        <input type="password" id="ghToken" autocomplete="off" placeholder="${getToken() ? "•••••• đã lưu — dán token mới để thay" : "github_pat_… hoặc ghp_…"}">
+      </div>
+      <div class="actions">
+        <button class="btn" id="pushBtn" onclick="pushToGitHub()">🚀 Lưu &amp; đẩy lên GitHub</button>
+        <button class="btn secondary small" onclick="saveTokenFromInput()">Chỉ lưu token</button>
+        <button class="btn danger small" ${getToken() ? "" : "disabled"} onclick="clearToken()">Xóa token</button>
+      </div>
+      <div class="push-status" id="pushStatus" style="display:none"></div>
+      <div class="hint">Tạo token tại: GitHub → Settings → Developer settings → Fine-grained tokens → chọn repo <code>${GH.repo}</code>, quyền Contents = Read and write.</div>
+    </div>
+
+    <div class="card">
+      <h2>Hoặc công bố thủ công</h2>
       <div class="hint" style="margin-top:0">
-        Mọi chỉnh sửa ở trên chỉ lưu <b>tạm trên máy này</b>. Để cả lớp thấy: bấm nút dưới để sao chép
-        đoạn CONFIG mới → mở file <code>index.html</code> trên GitHub → dán đè lên đoạn giữa hai dòng
-        <code>CONFIG START</code> và <code>CONFIG END</code> → Commit.
+        Cách không cần token: bấm nút dưới để sao chép đoạn CONFIG mới → mở file <code>index.html</code>
+        trên GitHub → dán đè lên đoạn giữa hai dòng <code>CONFIG START</code> và <code>CONFIG END</code> → Commit.
       </div>
       <div class="actions">
         <button class="btn" onclick="copyConfig()">📋 Sao chép cấu hình</button>
@@ -710,7 +796,27 @@ function toggleOff(iso) {
 function addCustomOff() {
   const v = document.getElementById("customOffDate").value;
   if (!v) return;
-  mutate(cfg => { if (!cfg.disabledDates.includes(v)) { cfg.disabledDates.push(v); cfg.disabledDates.sort(); } });
+  mutate(cfg => {
+    // Thêm ngày nghỉ thì gỡ khỏi ngày học bù (nếu có) cho khỏi mâu thuẫn
+    const e = cfg.extraDates.indexOf(v); if (e >= 0) cfg.extraDates.splice(e, 1);
+    if (!cfg.disabledDates.includes(v)) { cfg.disabledDates.push(v); cfg.disabledDates.sort(); }
+  });
+}
+function toggleExtra(iso) {
+  mutate(cfg => {
+    const i = cfg.extraDates.indexOf(iso);
+    if (i >= 0) cfg.extraDates.splice(i, 1);
+    else { cfg.extraDates.push(iso); cfg.extraDates.sort(); }
+  });
+}
+function addExtraDate() {
+  const v = document.getElementById("customExtraDate").value;
+  if (!v) return;
+  mutate(cfg => {
+    // Ngày học bù thì không thể đồng thời là ngày nghỉ
+    const o = cfg.disabledDates.indexOf(v); if (o >= 0) cfg.disabledDates.splice(o, 1);
+    if (!cfg.extraDates.includes(v)) { cfg.extraDates.push(v); cfg.extraDates.sort(); }
+  });
 }
 function changeStartDate(v) {
   if (!v) return;
@@ -727,8 +833,8 @@ function editStudentName(i, v) {
   if (!name) { renderAll(); return; }
   mutate(cfg => { cfg.students[i].name = name; });
 }
-function toggleStudentDone(i) {
-  mutate(cfg => { cfg.students[i].done = !cfg.students[i].done; });
+function changeCount(i, delta) {
+  mutate(cfg => { cfg.students[i].count = Math.max(0, (cfg.students[i].count | 0) + delta); });
 }
 function moveStudent(i, dir) {
   mutate(cfg => {
@@ -745,7 +851,7 @@ function removeStudent(i) {
 function addStudent() {
   const name = prompt("Tên bạn mới:");
   if (!name || !name.trim()) return;
-  mutate(cfg => { cfg.students.push({ name: name.trim(), done: false }); });
+  mutate(cfg => { cfg.students.push({ name: name.trim(), count: 0 }); });
 }
 function discardDraft() {
   if (!confirm("Bỏ toàn bộ bản nháp, quay về dữ liệu gốc trong file?")) return;
@@ -757,7 +863,7 @@ function discardDraft() {
 function generateConfigBlock() {
   const cfg = activeConfig();
   const stu = cfg.students.map(s =>
-    `    { name: ${JSON.stringify(s.name)}, done: ${s.done ? "true" : "false"} }`
+    `    { name: ${JSON.stringify(s.name)}, count: ${Math.max(0, s.count | 0)} }`
   ).join(",\n");
   return `// ===== CONFIG START =====
 const CONFIG = {
@@ -769,9 +875,12 @@ const CONFIG = {
   startDate: ${JSON.stringify(cfg.startDate)},
   // Ngày trong tuần có buổi học: 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
   schoolDays: [${cfg.schoolDays.join(", ")}],
-  // Danh sách ngày nghỉ, định dạng "YYYY-MM-DD"
+  // Danh sách ngày nghỉ (không học), định dạng "YYYY-MM-DD"
   disabledDates: [${cfg.disabledDates.map(x => JSON.stringify(x)).join(", ")}],
-  // done = true nghĩa là ĐÃ lấy dụng cụ đợt 1
+  // Ngày học bù: bật một ngày cụ thể (kể cả cuối tuần) thành buổi học, "YYYY-MM-DD"
+  extraDates: [${cfg.extraDates.map(x => JSON.stringify(x)).join(", ")}],
+  // count = số lần bạn đó ĐÃ đi lấy dụng cụ. Ai có count thấp nhất sẽ được xếp trực trước
+  // (tự cân bằng: người đã lấy nhiều lần sẽ được miễn cho tới khi người khác đuổi kịp).
   students: [
 ${stu}
   ]
@@ -797,6 +906,80 @@ function copyConfig() {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(showOk, fallback);
   } else fallback();
+}
+
+/* ---------- Đẩy tự động lên GitHub bằng token (token chỉ nằm trong máy admin) ---------- */
+function getToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+function saveToken(t) { try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) { } }
+function saveTokenFromInput() {
+  const inp = document.getElementById("ghToken");
+  const v = inp ? inp.value.trim() : "";
+  if (!v) { alert("Chưa nhập token."); return; }
+  saveToken(v);
+  if (inp) inp.value = "";
+  renderAll();
+}
+function clearToken() {
+  if (!confirm("Xóa token GitHub khỏi trình duyệt này?")) return;
+  saveToken("");
+  renderAll();
+}
+function setPushStatus(msg, ok) {
+  const el = document.getElementById("pushStatus");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "push-status" + (ok === true ? " ok" : ok === false ? " err" : "");
+  el.style.display = "block";
+}
+// UTF-8 <-> base64 an toàn cho tiếng Việt
+function b64Encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64Decode(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, "")))); }
+
+async function pushToGitHub() {
+  const inp = document.getElementById("ghToken");
+  if (inp && inp.value.trim()) saveToken(inp.value.trim());
+  const token = getToken();
+  if (!token) { setPushStatus("✗ Chưa có token. Dán token GitHub vào ô trên rồi thử lại.", false); return; }
+  const btn = document.getElementById("pushBtn");
+  if (btn) btn.disabled = true;
+  try {
+    setPushStatus("Đang đọc file hiện tại trên GitHub…");
+    const api = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`;
+    const headers = { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" };
+    const getRes = await fetch(api + "?ref=" + GH.branch, { headers });
+    if (getRes.status === 401) throw new Error("Token sai hoặc hết hạn (401).");
+    if (getRes.status === 404) throw new Error("Không thấy repo/file — kiểm tra token có quyền repo này (404).");
+    if (!getRes.ok) throw new Error("Không đọc được file (HTTP " + getRes.status + ").");
+    const meta = await getRes.json();
+    const currentText = b64Decode(meta.content || "");
+    const startMark = "// ===== CONFIG START =====";
+    const endMark = "// ===== CONFIG END =====";
+    const si = currentText.indexOf(startMark);
+    const ei = currentText.indexOf(endMark);
+    if (si < 0 || ei < 0) throw new Error("Không tìm thấy mốc CONFIG trong file trên GitHub.");
+    const newText = currentText.slice(0, si) + generateConfigBlock() + currentText.slice(ei + endMark.length);
+    if (newText === currentText) { setPushStatus("Không có gì thay đổi so với file trên GitHub.", true); return; }
+    setPushStatus("Đang đẩy thay đổi lên GitHub…");
+    const putRes = await fetch(api, {
+      method: "PUT",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Cập nhật lịch từ trang Quản lý",
+        content: b64Encode(newText),
+        sha: meta.sha,
+        branch: GH.branch
+      })
+    });
+    if (!putRes.ok) {
+      let m = ""; try { m = (await putRes.json()).message || ""; } catch (e) { }
+      throw new Error("Đẩy thất bại (HTTP " + putRes.status + "). " + m);
+    }
+    setPushStatus("✓ Đã đẩy lên GitHub! Chờ ~1 phút để cả lớp thấy lịch mới. Có thể bấm «Bỏ bản nháp» sau khi deploy xong.", true);
+  } catch (err) {
+    setPushStatus("✗ " + (err && err.message ? err.message : "Lỗi không rõ."), false);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 /* ============================================================
