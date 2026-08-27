@@ -8,6 +8,8 @@
     "login": "node login.js",
     "send": "node send-once.js",
     "dry": "node send-once.js --dry-run",
+    "announce": "node send-announcements.js",
+    "announce:dry": "node send-announcements.js --dry-run",
     "daemon": "node daemon.js"
   },
   "dependencies": {

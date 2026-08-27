@@ -87,7 +87,45 @@ export function parseConfig(html) {
       name: s.name,
       count: typeof s.count === "number" ? Math.max(0, s.count | 0) : (s.done ? 1 : 0),
     })),
+    groups: (Array.isArray(cfg.groups) ? cfg.groups : []).map((g) => ({
+      name: String(g.name || "").trim(),
+      id: String(g.id || "").trim(),
+    })),
+    announcements: (Array.isArray(cfg.announcements) ? cfg.announcements : []).map((a) => ({
+      id: a.id,
+      groupId: String(a.groupId || "").trim(),
+      hour: Math.min(23, Math.max(0, a.hour | 0)),
+      mode: a.mode === "dates" ? "dates" : "daily",
+      dates: Array.isArray(a.dates) ? a.dates.slice() : [],
+      enabled: a.enabled !== false,
+      content: String(a.content || ""),
+    })),
   };
+}
+
+// Múi giờ VN, trả về giờ hiện tại (0-23) và ngày ISO "YYYY-MM-DD".
+export function nowVN() {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: CONFIG.TIMEZONE,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", hour12: false,
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(new Date()).map((p) => [p.type, p.value]));
+  const iso = `${parts.year}-${parts.month}-${parts.day}`;
+  let hour = parseInt(parts.hour, 10);
+  if (hour === 24) hour = 0; // một số môi trường trả "24" cho nửa đêm
+  return { iso, hour };
+}
+
+// Lọc các thông báo phải gửi tại (isoDate, hour) — giờ tròn theo giờ VN.
+export function announcementsDue(cfg, iso, hour) {
+  return (cfg.announcements || []).filter((a) => {
+    if (!a.enabled) return false;
+    if (!a.groupId || !a.content.trim()) return false;
+    if (a.hour !== hour) return false;
+    if (a.mode === "daily") return true;
+    return a.dates.includes(iso);
+  });
 }
 
 // Lấy HTML: ưu tiên trang đã deploy; nếu lỗi mạng thì fallback file local.
@@ -135,4 +173,4 @@ export function dutyForDate(cfg, date) {
   };
 }
 
-export default { parseConfig, fetchHtml, dutyForDate, todayVN };
+export default { parseConfig, fetchHtml, dutyForDate, todayVN, nowVN, announcementsDue };

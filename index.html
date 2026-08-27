@@ -62,7 +62,16 @@ const CONFIG = {
     { name: "Tống Mỹ Uyên", count: 0 },
     { name: "Nguyễn Thị Thuỳ Vân", count: 1 },
     { name: "Nguyễn Yến Chi", count: 1 }
-  ]
+  ],
+  // Nhóm Zalo đã lưu để chọn khi tạo thông báo. id lấy từ `node bot/login.js`.
+  groups: [
+    { name: "Xóm 8", id: "8512857535213641841" }
+  ],
+  // Thông báo tự động do bot gửi. Mỗi mục:
+  //   { id, groupId, hour (0-23, giờ VN), mode: "daily"|"dates",
+  //     dates: ["YYYY-MM-DD", ...], enabled, content }
+  // mode "daily" = gửi mỗi ngày; mode "dates" = chỉ gửi đúng các ngày trong `dates`.
+  announcements: []
 };
 // ===== CONFIG END =====
 </script>
@@ -182,11 +191,12 @@ const CONFIG = {
   .round-n { background: var(--accent-soft); color: var(--accent); }
 
   /* Tab Quản lý */
-  input[type="password"], input[type="text"], input[type="date"] {
+  input[type="password"], input[type="text"], input[type="date"], select, textarea {
     width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
     background: var(--bg); color: var(--text); font-size: .95rem;
   }
-  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  textarea { resize: vertical; font-family: inherit; line-height: 1.4; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   .btn {
     display: inline-block; border: 0; background: var(--accent); color: #fff;
     padding: 10px 18px; border-radius: 10px; font-size: .9rem; font-weight: 600; cursor: pointer;
@@ -207,6 +217,24 @@ const CONFIG = {
   }
   .day-checks label.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
   .day-checks input { display: none; }
+
+  .ann-item {
+    border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+    background: var(--bg);
+  }
+  .ann-item.ann-off { opacity: .55; }
+  .ann-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .ann-when { font-weight: 700; font-size: .9rem; }
+  .ann-row2 { display: flex; gap: 12px; }
+  .ann-row2 .field { flex: 1; }
+  .ann-dates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .ann-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: .8rem;
+    border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 3px 6px 3px 10px;
+  }
+  .ann-chip b { font-weight: 700; }
+  .ann-chip button { border: 0; background: transparent; color: var(--accent); cursor: pointer; font-size: .9rem; line-height: 1; padding: 0 2px; }
 
   .off-list { display: flex; flex-direction: column; gap: 6px; }
   .off-row {
@@ -387,9 +415,13 @@ function baseConfig() { // bản sao sâu của CONFIG trong file
     schoolDays: CONFIG.schoolDays,
     disabledDates: CONFIG.disabledDates,
     extraDates: CONFIG.extraDates || [],
-    students: CONFIG.students
+    students: CONFIG.students,
+    groups: CONFIG.groups || [],
+    announcements: CONFIG.announcements || []
   }));
 }
+let _annSeq = 0;
+function newAnnId() { return "a" + Date.now().toString(36) + (_annSeq++).toString(36); }
 // Chuẩn hóa: bảo đảm đủ trường & tương thích bản nháp cũ (done -> count)
 function normalizeCfg(cfg) {
   if (!Array.isArray(cfg.schoolDays)) cfg.schoolDays = [];
@@ -398,6 +430,17 @@ function normalizeCfg(cfg) {
   cfg.students = (cfg.students || []).map(s => ({
     name: s.name,
     count: typeof s.count === "number" ? Math.max(0, s.count | 0) : (s.done ? 1 : 0)
+  }));
+  cfg.groups = (Array.isArray(cfg.groups) ? cfg.groups : [])
+    .map(g => ({ name: String(g.name || "").trim(), id: String(g.id || "").trim() }));
+  cfg.announcements = (Array.isArray(cfg.announcements) ? cfg.announcements : []).map(a => ({
+    id: a.id || newAnnId(),
+    groupId: String(a.groupId || "").trim(),
+    hour: Math.min(23, Math.max(0, a.hour | 0)),
+    mode: a.mode === "dates" ? "dates" : "daily",
+    dates: Array.isArray(a.dates) ? a.dates.slice().sort() : [],
+    enabled: a.enabled !== false,
+    content: String(a.content || "")
   }));
   return cfg;
 }
@@ -690,6 +733,52 @@ function renderAdmin(cfg) {
       <button class="icon-btn del" onclick="removeStudent(${i})" title="Xóa">✕</button>
     </div>`).join("");
 
+  // --- nhóm Zalo đã lưu ---
+  const groupRows = (cfg.groups || []).map((g, i) => `<div class="stu-row">
+      <input type="text" value="${esc(g.name)}" placeholder="Tên nhóm" onchange="setGroupName(${i}, this.value)">
+      <input type="text" value="${esc(g.id)}" placeholder="ID nhóm Zalo" style="flex:1.4;font-family:monospace;font-size:.82rem" onchange="setGroupId(${i}, this.value)">
+      <button class="icon-btn del" onclick="removeGroup(${i})" title="Xóa nhóm">✕</button>
+    </div>`).join("");
+
+  // --- thông báo tự động ---
+  const groupOpts = (sel) => `<option value="">— chọn nhóm —</option>` + (cfg.groups || [])
+    .map(g => `<option value="${esc(g.id)}" ${g.id === sel ? "selected" : ""}>${esc(g.name || g.id)}</option>`).join("");
+  const hourOpts = (sel) => Array.from({ length: 24 }, (_, h) =>
+    `<option value="${h}" ${h === sel ? "selected" : ""}>${h}h</option>`).join("");
+  const annRows = (cfg.announcements || []).map((a, i) => {
+    const dateChips = a.mode === "dates"
+      ? (a.dates.length
+          ? `<div class="ann-dates">` + a.dates.map(x => {
+              const d = parseDate(x);
+              return `<span class="ann-chip"><b>${DOW_SHORT[d.getDay()]}</b> ${fmtVN(d)}<button onclick="removeAnnDate(${i}, '${x}')" title="Bỏ ngày">✕</button></span>`;
+            }).join("") + `</div>`
+          : `<div class="hint" style="margin:4px 0">Chưa chọn ngày nào — thông báo sẽ không gửi cho tới khi thêm ngày.</div>`)
+        + `<div class="add-off-row"><input type="date" id="annDate-${a.id}"><button class="btn small" onclick="addAnnDate(${i})">Thêm ngày</button></div>`
+      : "";
+    return `<div class="ann-item ${a.enabled ? "" : "ann-off"}">
+      <div class="ann-head">
+        <span class="ann-when">🕒 ${a.hour}h · ${a.mode === "daily" ? "Hàng ngày" : "Theo ngày (" + a.dates.length + ")"}</span>
+        <span style="flex:1"></span>
+        <button class="toggle ${a.enabled ? "on" : ""}" title="Bật/tắt thông báo" onclick="toggleAnnEnabled(${i})"></button>
+        <button class="icon-btn del" onclick="removeAnnouncement(${i})" title="Xóa thông báo">✕</button>
+      </div>
+      <div class="field"><label>Nhóm nhận</label>
+        <select onchange="setAnnGroup(${i}, this.value)">${groupOpts(a.groupId)}</select></div>
+      <div class="field"><label>Nội dung</label>
+        <textarea rows="3" placeholder="Nội dung thông báo…" onchange="setAnnContent(${i}, this.value)">${esc(a.content)}</textarea></div>
+      <div class="ann-row2">
+        <div class="field" style="margin:0"><label>Giờ gửi</label>
+          <select onchange="setAnnHour(${i}, this.value)">${hourOpts(a.hour)}</select></div>
+        <div class="field" style="margin:0"><label>Lịch</label>
+          <select onchange="setAnnMode(${i}, this.value)">
+            <option value="daily" ${a.mode === "daily" ? "selected" : ""}>Hàng ngày</option>
+            <option value="dates" ${a.mode === "dates" ? "selected" : ""}>Theo ngày cụ thể</option>
+          </select></div>
+      </div>
+      ${dateChips}
+    </div>`;
+  }).join("");
+
   // --- danh sách ngày học bù ---
   const extras = cfg.extraDates.slice().sort();
   const extraList = extras.length
@@ -743,6 +832,24 @@ function renderAdmin(cfg) {
         <button class="btn small secondary" onclick="addStudent()">+ Thêm bạn mới</button>
       </div>
       <div class="hint">Số bên phải mỗi tên = <b>số lần bạn đó đã đi lấy dụng cụ</b>. Ai có số thấp nhất được xếp trực trước; người đã lấy nhiều lần sẽ được miễn cho tới khi người khác đuổi kịp. Bạn mới thêm mặc định là 0.</div>
+    </div>
+
+    <div class="card">
+      <h2>Nhóm Zalo</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px">Danh sách nhóm để chọn khi tạo thông báo. Lấy <b>ID nhóm</b> bằng cách chạy <code>node bot/login.js</code> (in ra «Tên nhóm =&gt; id»).</div>
+      ${groupRows || `<div class="hint" style="margin-top:0">Chưa có nhóm nào.</div>`}
+      <div class="actions">
+        <button class="btn small secondary" onclick="addGroup()">+ Thêm nhóm</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Thông báo tự động (${(cfg.announcements || []).length})</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:12px">Bot sẽ tự gửi nội dung vào nhóm đã chọn, đúng <b>giờ tròn</b> bạn đặt (có thể trễ vài phút do máy chủ). Chọn <b>Hàng ngày</b> để gửi mỗi ngày, hoặc <b>Theo ngày cụ thể</b> để chọn một hay nhiều ngày.</div>
+      ${annRows || `<div class="hint" style="margin-top:0">Chưa có thông báo nào.</div>`}
+      <div class="actions">
+        <button class="btn small secondary" onclick="addAnnouncement()">+ Thêm thông báo</button>
+      </div>
     </div>
 
     <div class="card">
@@ -857,6 +964,54 @@ function addStudent() {
   if (!name || !name.trim()) return;
   mutate(cfg => { cfg.students.push({ name: name.trim(), count: 0 }); });
 }
+/* --- Nhóm Zalo --- */
+function addGroup() {
+  mutate(cfg => { (cfg.groups = cfg.groups || []).push({ name: "", id: "" }); });
+}
+function setGroupName(i, v) { mutate(cfg => { cfg.groups[i].name = v.trim(); }); }
+function setGroupId(i, v) { mutate(cfg => { cfg.groups[i].id = v.trim(); }); }
+function removeGroup(i) {
+  const cfg = activeConfig();
+  const g = cfg.groups[i];
+  if (!confirm("Xóa nhóm «" + (g.name || g.id || "?") + "»?")) return;
+  mutate(c => { c.groups.splice(i, 1); });
+}
+
+/* --- Thông báo tự động --- */
+function addAnnouncement() {
+  mutate(cfg => {
+    const firstGroup = (cfg.groups && cfg.groups[0]) ? cfg.groups[0].id : "";
+    (cfg.announcements = cfg.announcements || []).push({
+      id: newAnnId(), groupId: firstGroup, hour: 8, mode: "daily", dates: [], enabled: true, content: ""
+    });
+  });
+}
+function removeAnnouncement(i) {
+  if (!confirm("Xóa thông báo này?")) return;
+  mutate(cfg => { cfg.announcements.splice(i, 1); });
+}
+function toggleAnnEnabled(i) { mutate(cfg => { cfg.announcements[i].enabled = !cfg.announcements[i].enabled; }); }
+function setAnnGroup(i, v) { mutate(cfg => { cfg.announcements[i].groupId = v; }); }
+function setAnnContent(i, v) { mutate(cfg => { cfg.announcements[i].content = v; }); }
+function setAnnHour(i, v) { mutate(cfg => { cfg.announcements[i].hour = Math.min(23, Math.max(0, parseInt(v, 10) || 0)); }); }
+function setAnnMode(i, v) { mutate(cfg => { cfg.announcements[i].mode = v === "dates" ? "dates" : "daily"; }); }
+function addAnnDate(i) {
+  const cfg = activeConfig();
+  const inp = document.getElementById("annDate-" + cfg.announcements[i].id);
+  const v = inp ? inp.value : "";
+  if (!v) return;
+  mutate(c => {
+    const a = c.announcements[i];
+    if (!a.dates.includes(v)) { a.dates.push(v); a.dates.sort(); }
+  });
+}
+function removeAnnDate(i, iso) {
+  mutate(cfg => {
+    const a = cfg.announcements[i];
+    const k = a.dates.indexOf(iso); if (k >= 0) a.dates.splice(k, 1);
+  });
+}
+
 function discardDraft() {
   if (!confirm("Bỏ toàn bộ bản nháp, quay về dữ liệu gốc trong file?")) return;
   clearDraft();
@@ -868,6 +1023,15 @@ function generateConfigBlock() {
   const cfg = activeConfig();
   const stu = cfg.students.map(s =>
     `    { name: ${JSON.stringify(s.name)}, count: ${Math.max(0, s.count | 0)} }`
+  ).join(",\n");
+  const grp = (cfg.groups || []).map(g =>
+    `    { name: ${JSON.stringify(g.name || "")}, id: ${JSON.stringify(g.id || "")} }`
+  ).join(",\n");
+  const ann = (cfg.announcements || []).map(a =>
+    `    { id: ${JSON.stringify(a.id)}, groupId: ${JSON.stringify(a.groupId || "")}, hour: ${a.hour | 0}, ` +
+    `mode: ${JSON.stringify(a.mode === "dates" ? "dates" : "daily")}, ` +
+    `dates: [${(a.dates || []).map(x => JSON.stringify(x)).join(", ")}], ` +
+    `enabled: ${a.enabled !== false}, content: ${JSON.stringify(a.content || "")} }`
   ).join(",\n");
   return `// ===== CONFIG START =====
 const CONFIG = {
@@ -887,6 +1051,15 @@ const CONFIG = {
   // (tự cân bằng: người đã lấy nhiều lần sẽ được miễn cho tới khi người khác đuổi kịp).
   students: [
 ${stu}
+  ],
+  // Nhóm Zalo đã lưu để chọn khi tạo thông báo. id lấy từ \`node bot/login.js\`.
+  groups: [
+${grp}
+  ],
+  // Thông báo tự động do bot gửi (giờ tròn theo giờ VN). mode "daily" = mỗi ngày;
+  // mode "dates" = chỉ các ngày trong \`dates\`.
+  announcements: [
+${ann}
   ]
 };
 // ===== CONFIG END =====`;
