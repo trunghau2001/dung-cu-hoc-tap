@@ -1,0 +1,57 @@
+name: Nhắc trực Zalo lúc 16h
+
+# HƯỚNG SERVER: chạy trên máy chủ của GitHub, không cần Mac bật.
+# LƯU Ý RỦI RO: zca-js không chính thức; đăng nhập từ IP trung tâm dữ liệu của GitHub
+# có thể bị Zalo chặn/đăng xuất. Nếu bị, dùng hướng local (launchd) làm chính.
+
+on:
+  schedule:
+    - cron: "0 9 * * *"   # 09:00 UTC = 16:00 giờ VN, chạy hằng ngày
+  workflow_dispatch:       # cho phép bấm chạy tay để test
+    inputs:
+      mode:
+        description: "Chế độ chạy tay"
+        type: choice
+        default: dry-run
+        options:
+          - dry-run     # chỉ in tin của HÔM NAY, không gửi (không cần nhóm)
+          - test-send   # ép gửi [TEST] vào nhóm test bên dưới (kiểm chứng server)
+          - real        # gửi thật như lịch (chỉ gửi nếu hôm nay là buổi học)
+      test_group_id:
+        description: "ID nhóm test (dùng khi mode=test-send)"
+        default: "3191333390522945563"   # nhóm Tây Du Kí
+
+concurrency:
+  group: zalo-reminder
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v4
+
+      - name: Cài Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cài thư viện
+        working-directory: bot
+        run: npm install
+
+      - name: Chạy bot
+        working-directory: bot
+        env:
+          ZALO_CRED: ${{ secrets.ZALO_CRED }}
+          ZALO_GROUP_ID: ${{ secrets.ZALO_GROUP_ID }}
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then MODE="real"; fi   # chạy theo lịch (schedule) -> gửi thật
+          echo "MODE = $MODE"
+          case "$MODE" in
+            dry-run)   node send-once.js --dry-run ;;
+            test-send) node send-test.js "${{ github.event.inputs.test_group_id }}" ;;
+            real)      node send-once.js ;;
+          esac

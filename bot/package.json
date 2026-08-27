@@ -1,0 +1,17 @@
+{
+  "name": "zalo-duty-reminder",
+  "version": "1.0.0",
+  "description": "Bot nhắc trực dụng cụ qua Zalo, gửi vào nhóm lớp lúc 16h mỗi ngày.",
+  "type": "module",
+  "scripts": {
+    "test": "node roster.test.js",
+    "login": "node login.js",
+    "send": "node send-once.js",
+    "dry": "node send-once.js --dry-run",
+    "daemon": "node daemon.js"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "zca-js": "2.1.2"
+  }
+}

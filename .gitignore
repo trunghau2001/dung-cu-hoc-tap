@@ -1,0 +1,9 @@
+# Bot Zalo — KHÔNG commit các thứ nhạy cảm / sinh ra khi chạy
+bot/cred.json
+bot/qr.png
+bot/*.log
+bot/node_modules/
+node_modules/
+
+# macOS
+.DS_Store

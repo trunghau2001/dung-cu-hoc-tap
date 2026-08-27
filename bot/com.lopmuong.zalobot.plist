@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.lopmuong.zalobot</string>
+
+  <!-- SỬA 2 ĐƯỜNG DẪN: -->
+  <!-- 1) node lấy từ lệnh `which node` (ví dụ /opt/homebrew/bin/node hoặc ~/.nvm/.../node) -->
+  <!-- 2) đường dẫn tuyệt đối tới send-once.js -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/trunghau2001/.nvm/versions/node/v24.20.0/bin/node</string>
+    <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/send-once.js</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot</string>
+
+  <!-- Chạy lúc 16:00 mỗi ngày. launchd sẽ chạy BÙ job bị lỡ khi Mac thức dậy. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>16</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/zalobot.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/zalobot.err.log</string>
+</dict>
+</plist>
