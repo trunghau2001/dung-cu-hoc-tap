@@ -16,7 +16,7 @@ export const CONFIG = {
 
   // ID nhóm Zalo cần gửi. Lấy được sau khi chạy `node login.js` (in ra "Tên nhóm => id").
   // Ưu tiên biến môi trường ZALO_GROUP_ID; nếu trống thì điền trực tiếp vào chuỗi dưới.
-  GROUP_ID: process.env.ZALO_GROUP_ID || "",
+  GROUP_ID: process.env.ZALO_GROUP_ID || "8512857535213641841", // nhóm "Xóm 8"
 
   // Mẫu tin nhắn. Placeholder dùng được: {name} {dateVN} (còn {tag} {session} vẫn hỗ trợ nếu cần).
   MESSAGE_TEMPLATE:

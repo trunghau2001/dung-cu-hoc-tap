@@ -41,6 +41,11 @@ async function main() {
     console.log(`[${duty.dateVN}] Bỏ qua — ${duty.reason}`);
     process.exit(0);
   }
+  // Chặn an toàn: không gửi nếu không xác định được người trực (vd danh sách trống).
+  if (!duty.name || duty.name === "—") {
+    console.log(`[${duty.dateVN}] Bỏ qua — không xác định được người trực.`);
+    process.exit(0);
+  }
 
   const text = fillTemplate(CONFIG.MESSAGE_TEMPLATE, duty);
   console.log(`[${duty.dateVN}] Buổi ${duty.session} — trực: ${duty.name} (${duty.tag})`);
