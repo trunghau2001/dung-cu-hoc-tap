@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.lopmuong.zaloannounce</string>
+
+  <!-- Gửi các "Thông báo tự động" (mục Quản lý trên web) tới hạn ở giờ hiện tại. -->
+  <!-- SỬA đường dẫn node nếu khác (which node). -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/trunghau2001/.nvm/versions/node/v24.20.0/bin/node</string>
+    <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/send-announcements.js</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot</string>
+
+  <!-- Chạy mỗi ĐẦU GIỜ (phút 0 của mọi giờ). send-announcements.js chỉ gửi thông báo
+       trùng giờ VN hiện tại; giờ nào không có thông báo thì không gửi gì. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/zaloannounce.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot/zaloannounce.err.log</string>
+</dict>
+</plist>
