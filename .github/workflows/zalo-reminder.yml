@@ -57,9 +57,12 @@ jobs:
           if [ -z "$MODE" ]; then MODE="real"; fi   # chạy theo lịch (schedule) -> gửi thật
           # Chạy theo lịch: chốt chỉ gửi đúng giờ VN = EXPECT_HOUR (chống GitHub chạy trễ sai giờ).
           # Chạy tay: KHÔNG chốt giờ, gửi ngay để tiện test.
-          # ⏱️ TẠM: đặt 9 để test đo độ trễ GitHub (gửi ~9h sáng vào Tây Du Kí).
-          #    Sau khi test xong đổi lại về 2 (giờ gửi thật mong muốn).
-          if [ "${{ github.event_name }}" = "schedule" ]; then export EXPECT_HOUR=9; fi
+          # ⏱️ TẠM: đặt 9 + nội dung "hí anh em" để test đo độ trễ GitHub (gửi ~9h sáng vào Tây Du Kí).
+          #    Sau khi test xong: đổi EXPECT_HOUR về 2 và BỎ dòng OVERRIDE_TEXT.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            export EXPECT_HOUR=9
+            export OVERRIDE_TEXT="hí anh em"
+          fi
           echo "MODE = $MODE ; EXPECT_HOUR = ${EXPECT_HOUR:-<không đặt>}"
           case "$MODE" in
             dry-run)   node send-once.js --dry-run ;;
