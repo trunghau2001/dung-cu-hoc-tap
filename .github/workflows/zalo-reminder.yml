@@ -6,7 +6,10 @@ name: Nhắc trực Zalo lúc 16h
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # 09:00 UTC = 16:00 giờ VN, chạy hằng ngày
+    # Chạy MỖI GIỜ (cron hàng giờ ổn định hơn cron 1 lần/ngày, vốn hay bị GitHub bỏ nhịp/chạy trễ).
+    # send-once.js chỉ thật sự gửi khi giờ VN = 16h (EXPECT_HOUR bên dưới), nên chỉ gửi 1 lần/ngày,
+    # và KHÔNG gửi sai giờ dù GitHub chạy trễ.
+    - cron: "0 * * * *"
   workflow_dispatch:       # cho phép bấm chạy tay để test
     inputs:
       mode:
@@ -49,7 +52,10 @@ jobs:
         run: |
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE="real"; fi   # chạy theo lịch (schedule) -> gửi thật
-          echo "MODE = $MODE"
+          # Chạy theo lịch: chốt chỉ gửi lúc 16h VN (chống GitHub chạy trễ sai giờ).
+          # Chạy tay: KHÔNG chốt giờ, gửi ngay để tiện test.
+          if [ "${{ github.event_name }}" = "schedule" ]; then export EXPECT_HOUR=16; fi
+          echo "MODE = $MODE ; EXPECT_HOUR = ${EXPECT_HOUR:-<không đặt>}"
           case "$MODE" in
             dry-run)   node send-once.js --dry-run ;;
             test-send) node send-test.js "${{ github.event.inputs.test_group_id }}" ;;

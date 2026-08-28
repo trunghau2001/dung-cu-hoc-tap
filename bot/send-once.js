@@ -9,7 +9,7 @@
 import { readFile } from "node:fs/promises";
 import { Zalo, ThreadType } from "zca-js";
 import CONFIG from "./config.js";
-import { parseConfig, fetchHtml, dutyForDate } from "./roster.js";
+import { parseConfig, fetchHtml, dutyForDate, nowVN } from "./roster.js";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -54,6 +54,18 @@ async function main() {
   if (DRY_RUN) {
     console.log("(--dry-run: KHÔNG gửi.)");
     process.exit(0);
+  }
+
+  // Chốt giờ: GitHub có thể chạy lịch trễ nhiều giờ. Nếu EXPECT_HOUR được đặt (từ workflow
+  // theo lịch) mà giờ VN hiện tại KHÔNG khớp thì bỏ qua, tránh gửi sai giờ (vd 2h sáng).
+  // Chạy tay (không đặt EXPECT_HOUR) thì gửi ngay, tiện test.
+  if (process.env.EXPECT_HOUR !== undefined && process.env.EXPECT_HOUR !== "") {
+    const { hour } = nowVN();
+    const want = parseInt(process.env.EXPECT_HOUR, 10);
+    if (hour !== want) {
+      console.log(`[${duty.dateVN}] Bỏ qua — giờ VN hiện tại ${hour}h, chỉ gửi lúc ${want}h (GitHub chạy trễ).`);
+      process.exit(0);
+    }
   }
 
   if (!CONFIG.GROUP_ID) {
