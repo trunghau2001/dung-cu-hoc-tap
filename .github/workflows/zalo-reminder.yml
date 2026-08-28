@@ -1,4 +1,4 @@
-name: Nhắc trực Zalo lúc 16h
+name: Nhắc trực Zalo (2h sáng · ĐANG TEST nhóm Tây Du Kí)
 
 # HƯỚNG SERVER: chạy trên máy chủ của GitHub, không cần Mac bật.
 # LƯU Ý RỦI RO: zca-js không chính thức; đăng nhập từ IP trung tâm dữ liệu của GitHub
@@ -48,13 +48,16 @@ jobs:
         working-directory: bot
         env:
           ZALO_CRED: ${{ secrets.ZALO_CRED }}
-          ZALO_GROUP_ID: ${{ secrets.ZALO_GROUP_ID }}
+          # ⚠️ ĐANG TEST: KHÔNG truyền ZALO_GROUP_ID để config.js (Tây Du Kí) làm chủ đích gửi,
+          # tránh mọi secret cũ vô tình trỏ về Xóm 8. Khi chạy thật: bỏ chú thích dòng dưới
+          # (và đặt secret = id Xóm 8) hoặc đổi GROUP_ID trong config.js về Xóm 8.
+          # ZALO_GROUP_ID: ${{ secrets.ZALO_GROUP_ID }}
         run: |
           MODE="${{ github.event.inputs.mode }}"
           if [ -z "$MODE" ]; then MODE="real"; fi   # chạy theo lịch (schedule) -> gửi thật
-          # Chạy theo lịch: chốt chỉ gửi lúc 16h VN (chống GitHub chạy trễ sai giờ).
+          # Chạy theo lịch: chốt chỉ gửi lúc 2h sáng VN (chống GitHub chạy trễ sai giờ).
           # Chạy tay: KHÔNG chốt giờ, gửi ngay để tiện test.
-          if [ "${{ github.event_name }}" = "schedule" ]; then export EXPECT_HOUR=16; fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then export EXPECT_HOUR=2; fi
           echo "MODE = $MODE ; EXPECT_HOUR = ${EXPECT_HOUR:-<không đặt>}"
           case "$MODE" in
             dry-run)   node send-once.js --dry-run ;;
