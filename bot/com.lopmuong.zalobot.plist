@@ -17,11 +17,12 @@
   <key>WorkingDirectory</key>
   <string>/Users/trunghau2001/Project/Lay-dung-cu-hoc-tap/bot</string>
 
-  <!-- Chạy lúc 16:00 mỗi ngày. launchd sẽ chạy BÙ job bị lỡ khi Mac thức dậy. -->
+  <!-- Chạy lúc 02:00 mỗi ngày. launchd chạy BÙ job bị lỡ: nếu 2h máy tắt/ngủ thì
+       tin gửi ngay LẦN ĐẦU máy mở/thức (đúng dữ liệu người trực của ngày hôm đó). -->
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
-    <integer>16</integer>
+    <integer>2</integer>
     <key>Minute</key>
     <integer>0</integer>
   </dict>

@@ -1,6 +1,7 @@
 # Bot nhắc trực dụng cụ qua Zalo
 
-Tự động gửi tin vào nhóm Zalo lớp lúc **16:00 mỗi ngày**: "hôm nay bạn nào phụ trách lấy dụng cụ".
+Tự động gửi tin vào nhóm Zalo lớp lúc **02:00 mỗi ngày** (nếu 2h máy tắt/ngủ thì gửi bù ngay
+lần đầu mở máy): "hôm nay bạn nào phụ trách lấy dụng cụ".
 Tự bỏ qua ngày không phải buổi học. Dữ liệu đọc **động** từ trang
 <https://trunghau2001.github.io/dung-cu-hoc-tap/> (không hardcode).
 
@@ -21,10 +22,11 @@ node send-once.js --dry-run # xem thử nội dung tin (không gửi)
 node send-once.js           # gửi thật 1 lần
 ```
 
-## Tự động 16h mỗi ngày bằng launchd (khuyến nghị cho Mac hay sleep)
+## Tự động 2h sáng mỗi ngày bằng launchd (khuyến nghị cho Mac hay sleep)
 
 Dùng `send-once.js` + launchd, **không** dùng `daemon.js`: launchd chạy **bù** job bị lỡ
-khi Mac thức dậy; còn hẹn giờ trong `daemon.js` sẽ bỏ lỡ nếu máy ngủ qua 16h.
+khi Mac thức dậy (2h sáng máy thường tắt/ngủ → tin gửi ngay lần đầu mở máy, đúng dữ liệu
+người trực của ngày đó); còn hẹn giờ trong `daemon.js` sẽ bỏ lỡ hẳn nếu máy ngủ qua 2h.
 
 ```bash
 # 1) Sửa __NODE_BIN__ trong com.lopmuong.zalobot.plist bằng đường dẫn thật:
@@ -41,14 +43,18 @@ launchctl unload ~/Library/LaunchAgents/com.lopmuong.zalobot.plist   # gỡ khi 
 
 Log ghi ở `bot/zalobot.log` và `bot/zalobot.err.log`.
 
-### (Tuỳ chọn) Để Mac tự thức trước 16h dù đang ngủ
+### (Tuỳ chọn) Để Mac tự thức lúc 2h sáng dù đang ngủ
 
-Cần **cắm sạc** và (với laptop) **không đậy nắp**:
+Thường **không cần** — cứ để launchd gửi bù khi mở máy buổi sáng. Nếu muốn gửi đúng 2h,
+cần **cắm sạc** và (với laptop) **không đậy nắp**:
 
 ```bash
-sudo pmset repeat wake MTWRF 15:58:00   # thức lúc 15:58 các ngày T2–T6
+sudo pmset repeat wake MTWRF 01:58:00   # thức lúc 01:58 các ngày T2–T6
 pmset -g sched                          # xem lịch đã đặt
 ```
+
+> Lưu ý: máy **tắt hẳn** (shutdown) thì pmset wake không bật máy được — lúc đó vẫn dựa vào
+> cơ chế gửi bù khi mở máy lần đầu.
 
 ## Thông báo tự động (mục Quản lý trên web)
 
@@ -78,7 +84,7 @@ node send-announcements.js                       # gửi thật
 | `send-once.js` | Gửi 1 tin nhắc trực rồi thoát (macOS/launchd). Hỗ trợ `--dry-run` |
 | `send-announcements.js` | Gửi các thông báo tới hạn ở giờ hiện tại. `--dry-run`, `--hour N` |
 | `daemon.js` | Login + giữ session + cron nội bộ (cho máy luôn bật, KHÔNG hợp macOS) |
-| `com.lopmuong.zalobot.plist` | launchd agent nhắc trực chạy 16h mỗi ngày |
+| `com.lopmuong.zalobot.plist` | launchd agent nhắc trực chạy 2h sáng mỗi ngày (gửi bù khi mở máy) |
 | `com.lopmuong.zaloannounce.plist` | launchd agent gửi Thông báo tự động, chạy mỗi đầu giờ |
 
 > **Đã gỡ khỏi GitHub Actions** (lịch cron GitHub hay bị bỏ nhịp, ~90% lần chạy bị rớt).
