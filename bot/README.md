@@ -58,9 +58,8 @@ Ngoài tin nhắc trực 16h, có thể tạo **thông báo tuỳ ý** ngay trê
 Bấm «🚀 Lưu & đẩy» để lưu vào trang — bot đọc động, không cần sửa code.
 
 - Lấy **ID nhóm** cho card «Nhóm Zalo» bằng `node login.js` (in ra "Tên nhóm => id").
-- Server: workflow `.github/workflows/zalo-announce.yml` chạy **mỗi đầu giờ**, gửi các
-  thông báo trùng giờ VN hiện tại. VN = UTC+7 cố định nên cron giờ UTC vẫn khớp giờ tròn VN.
-  Có thể trễ vài phút do GitHub.
+- Chạy tự động: agent launchd `com.lopmuong.zaloannounce.plist` chạy **mỗi đầu giờ** trên Mac,
+  gửi các thông báo trùng giờ VN hiện tại. Giờ nào không có thông báo thì không gửi gì.
 
 ```bash
 node send-announcements.js --dry-run            # in các thông báo tới hạn giờ này
@@ -79,7 +78,19 @@ node send-announcements.js                       # gửi thật
 | `send-once.js` | Gửi 1 tin nhắc trực rồi thoát (macOS/launchd). Hỗ trợ `--dry-run` |
 | `send-announcements.js` | Gửi các thông báo tới hạn ở giờ hiện tại. `--dry-run`, `--hour N` |
 | `daemon.js` | Login + giữ session + cron nội bộ (cho máy luôn bật, KHÔNG hợp macOS) |
-| `com.lopmuong.zalobot.plist` | launchd agent chạy 16h mỗi ngày |
+| `com.lopmuong.zalobot.plist` | launchd agent nhắc trực chạy 16h mỗi ngày |
+| `com.lopmuong.zaloannounce.plist` | launchd agent gửi Thông báo tự động, chạy mỗi đầu giờ |
+
+> **Đã gỡ khỏi GitHub Actions** (lịch cron GitHub hay bị bỏ nhịp, ~90% lần chạy bị rớt).
+> Toàn bộ gửi tin chạy **local qua launchd** trên Mac. Nạp/gỡ agent:
+>
+> ```bash
+> cp com.lopmuong.zalobot.plist com.lopmuong.zaloannounce.plist ~/Library/LaunchAgents/
+> launchctl load -w ~/Library/LaunchAgents/com.lopmuong.zalobot.plist
+> launchctl load -w ~/Library/LaunchAgents/com.lopmuong.zaloannounce.plist
+> launchctl list | grep zalo                 # kiểm tra đã nạp
+> launchctl unload ~/Library/LaunchAgents/com.lopmuong.zalobot.plist   # gỡ khi cần
+> ```
 
 > **Chạy thông báo bằng launchd (local):** thêm một agent nữa giống plist trên nhưng gọi
 > `send-announcements.js` với `StartCalendarInterval` là `Minute 0` (mỗi đầu giờ).
