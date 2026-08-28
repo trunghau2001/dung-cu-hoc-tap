@@ -2,6 +2,7 @@
 bot/cred.json
 bot/qr.png
 bot/*.log
+bot/.last-sent-date
 bot/node_modules/
 node_modules/
 

@@ -31,6 +31,10 @@ export const CONFIG = {
 
   // Nơi lưu credential đăng nhập Zalo (cookie/imei/userAgent). KHÔNG commit file này.
   CRED_FILE: join(__dirname, "cred.json"),
+
+  // File mốc ngày đã gửi (DD/MM/YYYY của lần gửi gần nhất). Dùng để chốt luật:
+  // mỗi ngày chỉ gửi 1 lần, và chỉ gửi cho ĐÚNG ngày hôm đó. KHÔNG commit.
+  SENT_MARKER: join(__dirname, ".last-sent-date"),
 };
 
 export default CONFIG;

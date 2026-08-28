@@ -43,6 +43,12 @@ launchctl unload ~/Library/LaunchAgents/com.lopmuong.zalobot.plist   # gỡ khi 
 
 Log ghi ở `bot/zalobot.log` và `bot/zalobot.err.log`.
 
+**Luật ngày (chống gửi sai/trùng):** tin của ngày nào chỉ gửi trong **đúng ngày đó**, mỗi
+ngày **1 lần duy nhất**. `send-once.js` luôn tính người trực của hôm nay khi chạy nên không
+bao giờ gửi tin ngày cũ; file mốc `bot/.last-sent-date` (không commit) chặn gửi trùng nếu job
+chạy nhiều lần trong ngày. Nếu **cả ngày máy không bật** → launchd không chạy → **miss, không
+gửi bù** sang ngày khác.
+
 ### (Tuỳ chọn) Để Mac tự thức lúc 2h sáng dù đang ngủ
 
 Thường **không cần** — cứ để launchd gửi bù khi mở máy buổi sáng. Nếu muốn gửi đúng 2h,

@@ -6,7 +6,7 @@
 //
 // Credential: đọc từ biến môi trường ZALO_CRED (chuỗi JSON) nếu có, ngược lại từ cred.json.
 // ============================================================
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { Zalo, ThreadType } from "zca-js";
 import CONFIG from "./config.js";
 import { parseConfig, fetchHtml, dutyForDate, nowVN } from "./roster.js";
@@ -39,8 +39,9 @@ async function main() {
 
   // OVERRIDE_TEXT (chỉ để TEST): gửi nội dung tùy chỉnh, bỏ qua kiểm tra buổi học.
   const OVERRIDE_TEXT = process.env.OVERRIDE_TEXT;
+  const isOverride = OVERRIDE_TEXT !== undefined && OVERRIDE_TEXT.trim() !== "";
   let text;
-  if (OVERRIDE_TEXT !== undefined && OVERRIDE_TEXT.trim() !== "") {
+  if (isOverride) {
     text = OVERRIDE_TEXT;
     console.log(`[${duty.dateVN}] (OVERRIDE_TEXT) gửi nội dung test, bỏ qua kiểm tra buổi học.`);
   } else {
@@ -61,6 +62,19 @@ async function main() {
   if (DRY_RUN) {
     console.log("(--dry-run: KHÔNG gửi.)");
     process.exit(0);
+  }
+
+  // LUẬT NGÀY: tin của ngày nào chỉ gửi trong ĐÚNG ngày đó, và mỗi ngày chỉ 1 lần.
+  // duty.dateVN luôn là hôm nay (giờ VN) khi tiến trình chạy -> không bao giờ gửi tin ngày cũ.
+  // Nếu cả ngày máy không bật thì launchd không chạy -> coi như MISS, không gửi bù sang ngày khác.
+  // File mốc chặn gửi trùng nếu trong ngày job chạy nhiều lần (sleep/wake, chạy tay...).
+  const today = duty.dateVN; // "DD/MM/YYYY" hôm nay theo giờ VN
+  if (!isOverride) {
+    const last = (await readFile(CONFIG.SENT_MARKER, "utf8").catch(() => "")).trim();
+    if (last === today) {
+      console.log(`[${today}] Đã gửi hôm nay rồi — bỏ qua (chỉ gửi 1 lần/ngày).`);
+      process.exit(0);
+    }
   }
 
   // Chốt giờ: GitHub có thể chạy lịch trễ nhiều giờ. Nếu EXPECT_HOUR được đặt (từ workflow
@@ -90,6 +104,11 @@ async function main() {
 
   await api.sendMessage(text, CONFIG.GROUP_ID, ThreadType.Group);
   console.log("✅ Đã gửi vào nhóm", CONFIG.GROUP_ID);
+
+  // Ghi mốc ngày đã gửi để không gửi lại trong hôm nay (bỏ qua khi test OVERRIDE_TEXT).
+  if (!isOverride) {
+    await writeFile(CONFIG.SENT_MARKER, today, "utf8").catch(() => {});
+  }
   process.exit(0);
 }
 
