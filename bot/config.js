@@ -16,9 +16,9 @@ export const CONFIG = {
 
   // ID nhóm Zalo cần gửi. Lấy được sau khi chạy `node login.js` (in ra "Tên nhóm => id").
   // Ưu tiên biến môi trường ZALO_GROUP_ID; nếu trống thì điền trực tiếp vào chuỗi dưới.
-  // ⚠️ ĐANG TEST: gửi vào nhóm "Tây Du Kí" cho an toàn.
-  //    Khi chạy THẬT: đổi lại thành "8512857535213641841" (nhóm "Xóm 8").
-  GROUP_ID: process.env.ZALO_GROUP_ID || "3191333390522945563", // TEST: "Tây Du Kí" | THẬT: "8512857535213641841" (Xóm 8)
+  // ✅ CHẠY THẬT: gửi vào nhóm lớp "Xóm 8".
+  //    Muốn quay lại test thì đổi thành "3191333390522945563" (nhóm "Tây Du Kí").
+  GROUP_ID: process.env.ZALO_GROUP_ID || "8512857535213641841", // THẬT: "Xóm 8" | TEST: "3191333390522945563" (Tây Du Kí)
 
   // Mẫu tin nhắn. Placeholder dùng được: {name} {dateVN} (còn {tag} {session} vẫn hỗ trợ nếu cần).
   MESSAGE_TEMPLATE:
